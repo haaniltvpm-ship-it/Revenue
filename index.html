@@ -25,6 +25,7 @@
         .num { text-align: right; font-family: 'monospace'; font-weight: 700; }
         .entry-row { display: grid; grid-template-columns: 1fr 200px; padding: 10px; border-bottom: 1px solid #f1f5f9; }
         .entry-row-editable { display: grid; grid-template-columns: 1fr 150px 30px 30px; padding: 10px; border-bottom: 1px solid #f1f5f9; gap: 8px; align-items: center; }
+        .entry-row-head { background: #e2e8f0; font-weight: 900; padding: 10px; display: grid; grid-template-columns: 1fr 200px; }
         input[readonly] { background-color: #e2e8f0; cursor: not-allowed; font-weight: bold; }
         input[type="number"], select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; }
         .btn { padding: 12px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; }
@@ -116,21 +117,54 @@
     <div id="view-settings" class="content-view" style="display:none">
         <div class="card">
             <h3>Admin Settings</h3>
+            <p style="color: #666; font-size: 12px; margin-bottom: 10px;">
+                <strong>Format:</strong> Add # before Head codes to identify them. Components are listed under each Head.
+            </p>
+            <label>Revenue Heads & Components</label>
+            <textarea id="set-items" style="width:100%; height:400px; font-family: monospace; font-size: 12px;"></textarea>
+            <p style="color: #666; font-size: 11px; margin-top: 5px;">Example:</p>
+            <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 11px;">#0406-01-101-94
+Compounding fee-Kottoor
+Ground Rent
+#0406-01-800-95
+Camera Fee
+Timber</pre>
             <label>Offices</label><textarea id="set-offices" style="width:100%; height:80px; margin-bottom:15px;"></textarea>
-            <label>Revenue Heads</label><textarea id="set-heads" style="width:100%; height:300px;"></textarea>
             <button class="btn btn-primary" onclick="saveSettings()">Save Configuration</button>
         </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk_BUV-5nTc3chG_bc_Ce5Jf9BvW06LME-1IlZXoKZfTpR7WC65Lt6ZWOvxuwUUJR4/exec"; 
-    let heads = ["0406-01-101-94", "Compounding fee-Kottoor", "Ground Rent", "0406-01-800-95", "Camera Fee"];
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyThV8NBqRryLAJkP-I4MUnOegGBJsOt9pOtVx6-NIpgbHTR9jJ0Gpoo4NnHJAlnEnG/exec"; 
+    let items = [
+        "#0406-01-101-94",
+        "Compounding fee-Kottoor",
+        "Ground Rent",
+        "#0406-01-800-95",
+        "Camera Fee"
+    ];
     let offices = ["KOTTOOR", "NEYYAR", "PEPPARA"];
     let userRole = "";
     let currentPeriod = {};
-    let editingEntryId = null;
-    let submittedEntries = {}; // Track submitted entries with their IDs
+    let submittedEntries = {};
+
+    // Parse items into heads and components structure
+    function parseItems() {
+        let structure = {};
+        let currentHead = null;
+        
+        items.forEach(item => {
+            if(item.startsWith('#')) {
+                currentHead = item.substring(1); // Remove #
+                structure[currentHead] = [];
+            } else if(currentHead) {
+                structure[currentHead].push(item);
+            }
+        });
+        
+        return structure;
+    }
 
     function handleLogin() {
         const u = document.getElementById('user-in').value.trim().toUpperCase();
@@ -145,16 +179,12 @@
     }
 
     function isEditWindowOpen() {
-        // Check if we're still in the edit window (end of current half-month)
         const today = new Date();
         const day = today.getDate();
         
         if(day >= 16) {
-            // In 16th-31st range, can edit until end of month
-            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-            return true; // Can edit until end of month
+            return true;
         } else {
-            // In 1st-15th range, can edit until 15th
             return day <= 15;
         }
     }
@@ -164,22 +194,19 @@
         const day = today.getDate();
         
         if(day >= 16) {
-            // End of current month
             return new Date(today.getFullYear(), today.getMonth() + 1, 0);
         } else {
-            // 15th of current month
             return new Date(today.getFullYear(), today.getMonth(), 15);
         }
     }
 
     function initApp(u) {
         if(localStorage.getItem('sys_offices')) offices = JSON.parse(localStorage.getItem('sys_offices'));
-        if(localStorage.getItem('sys_heads')) heads = JSON.parse(localStorage.getItem('sys_heads'));
+        if(localStorage.getItem('sys_items')) items = JSON.parse(localStorage.getItem('sys_items'));
         
-        // --- CALCULATION LOGIC FOR AUTO PERIOD ---
         const today = new Date();
         const day = today.getDate();
-        const jsMonth = today.getMonth(); // 0-11 (Jan-Dec)
+        const jsMonth = today.getMonth();
         const year = today.getFullYear();
         
         let startD, endD, rMonth, rYear, entryHalf;
@@ -221,7 +248,6 @@
         document.getElementById('entry-period-label').dataset.y = rYear;
         document.getElementById('entry-period-label').dataset.h = entryHalf;
 
-        // Show edit window message
         const endDate = getEditWindowEndDate();
         const endDateStr = endDate.toLocaleDateString('en-GB');
         document.getElementById('edit-window-msg').innerHTML = `✏️ <strong>Edit Window:</strong> You can edit/delete entries until ${endDateStr}`;
@@ -236,7 +262,6 @@
     }
 
     async function loadExistingEntries() {
-        // Load entries that match current period for edit capability
         if(userRole === 'office' && isEditWindowOpen()) {
             try {
                 const resp = await fetch(SCRIPT_URL);
@@ -247,18 +272,19 @@
                     const rOffice = r[1];
                     const rMonth = parseInt(r[3]);
                     const rYear = parseInt(r[4]);
-                    const rHalf = parseInt(r[7]);
-                    const rEntryId = r[8];
+                    const rHalf = parseInt(r[8]);
+                    const rEntryId = r[9];
                     
-                    // Check if this entry belongs to current period
                     if(rOffice === currentOffice && 
                        rMonth === currentPeriod.month && 
                        rYear === currentPeriod.year && 
                        rHalf === currentPeriod.half) {
                         const rHead = r[5];
-                        const rAmount = parseFloat(r[6]);
+                        const rComponent = r[6];
+                        const rAmount = parseFloat(r[7]);
                         
-                        submittedEntries[rHead] = {
+                        const key = rHead + "||" + rComponent;
+                        submittedEntries[key] = {
                             id: rEntryId,
                             amount: rAmount
                         };
@@ -272,54 +298,66 @@
         }
     }
 
-    function updateFormWithExistingEntries() {
-        // Update form to show edit buttons for existing entries
+    function renderForm() {
         const container = document.getElementById('form-container');
         container.innerHTML = "";
+        const structure = parseItems();
         
-        heads.forEach(h => {
-            const div = document.createElement('div');
-            if(h.startsWith('0406')) {
-                div.className = "entry-row head-row";
-                div.innerHTML = `<span>${h}</span><span></span>`;
-            } else {
-                const existing = submittedEntries[h];
+        Object.keys(structure).forEach(head => {
+            // Add head row
+            const headDiv = document.createElement('div');
+            headDiv.className = "entry-row-head";
+            headDiv.innerHTML = `<span>${head}</span><span></span>`;
+            container.appendChild(headDiv);
+            
+            // Add component rows
+            structure[head].forEach(component => {
+                const div = document.createElement('div');
+                div.className = "entry-row";
+                div.innerHTML = `<span style="margin-left: 20px;">${component}</span><input type="number" class="val-in" data-head="${head}" data-comp="${component}" value="0" min="0" step="0.01">`;
+                container.appendChild(div);
+            });
+        });
+    }
+
+    function updateFormWithExistingEntries() {
+        const container = document.getElementById('form-container');
+        container.innerHTML = "";
+        const structure = parseItems();
+        
+        Object.keys(structure).forEach(head => {
+            // Add head row
+            const headDiv = document.createElement('div');
+            headDiv.className = "entry-row-head";
+            headDiv.innerHTML = `<span>${head}</span><span></span>`;
+            container.appendChild(headDiv);
+            
+            // Add component rows
+            structure[head].forEach(component => {
+                const key = head + "||" + component;
+                const existing = submittedEntries[key];
+                const div = document.createElement('div');
+                
                 if(existing && isEditWindowOpen()) {
-                    // Show editable row with edit/delete buttons
+                    // Editable row
                     div.className = "entry-row-editable";
                     div.innerHTML = `
-                        <span>${h}</span>
-                        <input type="number" class="val-in" data-h="${h}" data-id="${existing.id}" value="${existing.amount}" min="0" step="0.01">
+                        <span style="margin-left: 20px;">${component}</span>
+                        <input type="number" class="val-in" data-head="${head}" data-comp="${component}" data-id="${existing.id}" value="${existing.amount}" min="0" step="0.01">
                         <button class="btn-save" onclick="updateEntry('${existing.id}', this)">✓</button>
                         <button class="btn-delete" onclick="deleteEntry('${existing.id}', this)">✕</button>
                     `;
                 } else if(existing) {
-                    // Show locked entry (outside edit window)
+                    // Locked row (outside edit window)
                     div.className = "entry-row";
-                    div.innerHTML = `<span>${h}</span><input type="number" value="${existing.amount}" readonly style="background-color: #e0e7ff; font-weight: bold;">`;
+                    div.innerHTML = `<span style="margin-left: 20px;">${component}</span><input type="number" value="${existing.amount}" readonly style="background-color: #e0e7ff; font-weight: bold;">`;
                 } else {
-                    // Show new entry input
+                    // New entry
                     div.className = "entry-row";
-                    div.innerHTML = `<span>${h}</span><input type="number" class="val-in" data-h="${h}" value="0" min="0" step="0.01">`;
+                    div.innerHTML = `<span style="margin-left: 20px;">${component}</span><input type="number" class="val-in" data-head="${head}" data-comp="${component}" value="0" min="0" step="0.01">`;
                 }
-            }
-            container.appendChild(div);
-        });
-    }
-
-    function renderForm() {
-        const container = document.getElementById('form-container');
-        container.innerHTML = "";
-        heads.forEach(h => {
-            const div = document.createElement('div');
-            if(h.startsWith('0406')) {
-                div.className = "entry-row head-row";
-                div.innerHTML = `<span>${h}</span><span></span>`;
-            } else {
-                div.className = "entry-row";
-                div.innerHTML = `<span>${h}</span><input type="number" class="val-in" data-h="${h}" value="0" min="0" step="0.01">`;
-            }
-            container.appendChild(div);
+                container.appendChild(div);
+            });
         });
     }
 
@@ -350,6 +388,7 @@
             
             if(result === "Updated") {
                 alert("Entry updated successfully!");
+                submittedEntries = {};
                 loadExistingEntries();
             } else {
                 alert("Error: " + result);
@@ -379,7 +418,7 @@
             
             if(result === "Deleted") {
                 alert("Entry deleted successfully!");
-                delete submittedEntries[button.parentElement.querySelector('input').dataset.h];
+                submittedEntries = {};
                 loadExistingEntries();
             } else {
                 alert("Error: " + result);
@@ -420,7 +459,8 @@
                     period: period,
                     month: parseInt(document.getElementById('entry-period-label').dataset.m),
                     year: parseInt(document.getElementById('entry-period-label').dataset.y),
-                    head: i.dataset.h, 
+                    head: i.dataset.head,
+                    component: i.dataset.comp,
                     amount: amount,
                     half: half
                 });
@@ -446,6 +486,7 @@
                 document.getElementById('form-container').style.pointerEvents = "none";
                 document.getElementById('success-msg').style.display = "block";
                 btn.style.display = "none";
+                submittedEntries = {};
                 loadExistingEntries();
             } else {
                 alert("Error: " + result);
@@ -474,20 +515,15 @@
             let html = `<thead><tr><th rowspan="2">Head of Account</th><th rowspan="2">Revenue Previous (1)</th><th colspan="2">Collection Month</th><th rowspan="2">Total (2)</th><th rowspan="2">Grand Total</th></tr><tr><th>1st-15th</th><th>16th-End</th></tr></thead><tbody>`;
 
             const startYear = parseInt(fy.split("-")[0]);
+            const structure = parseItems();
 
             let gPrev = 0, gH1 = 0, gH2 = 0, gMonth = 0, gTotal = 0;
-            let sPrev = 0, sH1 = 0, sH2 = 0, sMonth = 0, sTotal = 0;
-            let firstHead = true;
 
-            heads.forEach((h, index) => {
-                if (h.startsWith('0406')) {
-                    if (!firstHead) {
-                        html += renderRow("Sub Total", sPrev, sH1, sH2, sMonth, sTotal, "subtotal-row");
-                        sPrev = 0; sH1 = 0; sH2 = 0; sMonth = 0; sTotal = 0;
-                    }
-                    html += `<tr class="head-row"><td colspan="6">${h}</td></tr>`;
-                    firstHead = false;
-                } else {
+            Object.keys(structure).forEach((head, headIndex) => {
+                let hPrev = 0, hH1 = 0, hH2 = 0, hMonth = 0, hTotal = 0;
+                let headHasSubs = false;
+
+                structure[head].forEach((component, compIndex) => {
                     let p = 0, h1 = 0, h2 = 0;
                     
                     raw.slice(1).forEach(r => {
@@ -495,14 +531,17 @@
                         const rMonth = parseInt(r[3]);
                         const rYear = parseInt(r[4]);
                         const rHead = r[5];
-                        const rAmount = parseFloat(r[6]);
-                        const rHalf = parseInt(r[7]);
+                        const rComponent = r[6];
+                        const rAmount = parseFloat(r[7]);
+                        const rHalf = parseInt(r[8]);
                         
                         const isCorrectFY = (rYear === startYear);
                         const isCorrectOffice = (office === "DIVISION" || rOffice === office);
-                        const isCorrectHead = (rHead === h);
+                        const isCorrectHead = (rHead === head);
+                        const isCorrectComponent = (rComponent === component);
                         
-                        if (isCorrectFY && isCorrectOffice && isCorrectHead) {
+                        if (isCorrectFY && isCorrectOffice && isCorrectHead && isCorrectComponent) {
+                            headHasSubs = true;
                             if (rMonth < selMonth) {
                                 p += rAmount;
                             } 
@@ -518,13 +557,15 @@
                     
                     let mTotal = h1 + h2;
                     let rTotal = p + mTotal;
-                    html += renderRow(h, p, h1, h2, mTotal, rTotal, "");
-                    sPrev += p; sH1 += h1; sH2 += h2; sMonth += mTotal; sTotal += rTotal;
-                    gPrev += p; gH1 += h1; gH2 += h2; gMonth += mTotal; gTotal += rTotal;
-                }
-                
-                if (index === heads.length - 1) {
-                    html += renderRow("Sub Total", sPrev, sH1, sH2, sMonth, sTotal, "subtotal-row");
+                    
+                    html += `<tr><td style="padding-left: 30px;">${component}</td><td class="num">${p.toFixed(2)}</td><td class="num">${h1.toFixed(2)}</td><td class="num">${h2.toFixed(2)}</td><td class="num">${mTotal.toFixed(2)}</td><td class="num">${rTotal.toFixed(2)}</td></tr>`;
+                    
+                    hPrev += p; hH1 += h1; hH2 += h2; hMonth += mTotal; hTotal += rTotal;
+                });
+
+                if(headHasSubs) {
+                    html += `<tr class="subtotal-row"><td>${head} Sub Total</td><td class="num">${hPrev.toFixed(2)}</td><td class="num">${hH1.toFixed(2)}</td><td class="num">${hH2.toFixed(2)}</td><td class="num">${hMonth.toFixed(2)}</td><td class="num">${hTotal.toFixed(2)}</td></tr>`;
+                    gPrev += hPrev; gH1 += hH1; gH2 += hH2; gMonth += hMonth; gTotal += hTotal;
                 }
             });
             
@@ -549,16 +590,16 @@
         document.getElementById('view-'+v).style.display='block';
         document.getElementById('nav-'+v).classList.add('active');
         if(v === 'settings') { 
+            document.getElementById('set-items').value = items.join("\n"); 
             document.getElementById('set-offices').value = offices.join("\n"); 
-            document.getElementById('set-heads').value = heads.join("\n"); 
         }
     }
 
     function saveSettings() {
+        items = document.getElementById('set-items').value.split("\n").filter(x => x.trim());
         offices = document.getElementById('set-offices').value.split("\n").filter(x => x.trim());
-        heads = document.getElementById('set-heads').value.split("\n").filter(x => x.trim());
+        localStorage.setItem('sys_items', JSON.stringify(items));
         localStorage.setItem('sys_offices', JSON.stringify(offices));
-        localStorage.setItem('sys_heads', JSON.stringify(heads));
         alert("Settings Saved!"); 
         location.reload();
     }
