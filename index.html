@@ -136,7 +136,7 @@ Timber</pre>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLFmpMLy-JlBr_bVDevh-LNX5LGP3nHJWKJBJOJ5PGPia2mr0EKsXsESNNhx7wTRtL/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzt0KHHm7iaVaIWi4qgehtRALPePlcBCU8-Pl50dR0GLVXXx-5H77V4cxeMeM7FyWoV/exec"; 
     let items = [
         "#0406-01-101-94",
         "Compounding fee-Kottoor",
@@ -516,7 +516,6 @@ Timber</pre>
 
             Object.keys(structure).forEach((head) => {
                 let hPrev = 0, hH1 = 0, hH2 = 0, hMonth = 0, hTotal = 0;
-                let headHasData = false;
                 let headRowAdded = false;
 
                 // Process all components under this head
@@ -538,7 +537,6 @@ Timber</pre>
                         const isCorrectComponent = (rComponent === component);
                         
                         if (isCorrectFY && isCorrectOffice && isCorrectHead && isCorrectComponent) {
-                            headHasData = true;
                             if (rMonth < selMonth) {
                                 p += rAmount;
                             } 
@@ -556,15 +554,13 @@ Timber</pre>
                     let rTotal = p + mTotal;
                     
                     // Add Head row only once at the beginning (on first component)
-                    if (headHasData && !headRowAdded) {
+                    if (!headRowAdded) {
                         html += `<tr class="head-row"><td><strong>${head}</strong></td><td colspan="5"></td></tr>`;
                         headRowAdded = true;
                     }
                     
-                    // Add component row (only if there's data)
-                    if (p > 0 || h1 > 0 || h2 > 0 || mTotal > 0 || rTotal > 0) {
-                        html += `<tr class="component-row"><td>${component}</td><td class="num">${p.toFixed(2)}</td><td class="num">${h1.toFixed(2)}</td><td class="num">${h2.toFixed(2)}</td><td class="num">${mTotal.toFixed(2)}</td><td class="num">${rTotal.toFixed(2)}</td></tr>`;
-                    }
+                    // Add component row (showing all components, even with 0 values)
+                    html += `<tr class="component-row"><td>${component}</td><td class="num">${p.toFixed(2)}</td><td class="num">${h1.toFixed(2)}</td><td class="num">${h2.toFixed(2)}</td><td class="num">${mTotal.toFixed(2)}</td><td class="num">${rTotal.toFixed(2)}</td></tr>`;
                     
                     hPrev += p; 
                     hH1 += h1; 
@@ -573,8 +569,8 @@ Timber</pre>
                     hTotal += rTotal;
                 });
 
-                // Add Sub Total row for this head (only if head has data)
-                if(headHasData) {
+                // Add Sub Total row for this head (always show, even if 0)
+                if(headRowAdded) {
                     html += `<tr class="subtotal-row"><td><strong>Sub Total - ${head}</strong></td><td class="num"><strong>${hPrev.toFixed(2)}</strong></td><td class="num"><strong>${hH1.toFixed(2)}</strong></td><td class="num"><strong>${hH2.toFixed(2)}</strong></td><td class="num"><strong>${hMonth.toFixed(2)}</strong></td><td class="num"><strong>${hTotal.toFixed(2)}</strong></td></tr>`;
                     
                     gPrev += hPrev; 
