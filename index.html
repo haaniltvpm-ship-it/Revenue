@@ -3,27 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RMS - Revenue Management System</title>
+    <title>RMS - Revenue Management System (Non Tax Revenue)</title>
     <style>
         :root { --primary: #0f172a; --accent: #2563eb; --success: #059669; --danger: #dc2626; --bg: #f1f5f9; --border: #475569; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
         .login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .login-card { background: white; padding: 40px; border-radius: 16px; width: 380px; text-align: center; }
-        .login-card h2 { margin: 0 0 10px 0; color: var(--primary); }
-        .login-card p { margin: 0 0 20px 0; color: #666; font-size: 12px; }
+        .login-card { background: white; padding: 40px; border-radius: 16px; width: 340px; text-align: center; }
         .header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; align-items: center; }
-        .header-title { display: flex; flex-direction: column; }
-        .header-title .app-name { font-weight: 900; font-size: 16px; color: var(--primary); }
-        .header-title .division-name { font-weight: 700; font-size: 14px; color: #64748b; margin-top: 3px; }
-        .header-credit { font-size: 11px; color: #94a3b8; text-align: right; }
+        .header-left { display: flex; flex-direction: column; }
+        .header-title { font-weight: 900; font-size: 18px; color: var(--primary); }
+        .header-subtitle { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .header-credit { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 4px; }
         .nav-bar { background: white; display: flex; gap: 25px; padding: 0 30px; border-bottom: 1px solid #cbd5e1; }
         .nav-item { padding: 15px 0; cursor: pointer; font-weight: 700; color: #64748b; border-bottom: 3px solid transparent; }
         .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
         .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
         .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .controls { display: flex; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px; align-items: flex-end; border: 1px solid #cbd5e1; flex-wrap: wrap; }
-        .control-group { flex: 1; min-width: 200px; }
-        .control-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 12px; color: #64748b; }
+        .controls { display: flex; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px; align-items: flex-end; border: 1px solid #cbd5e1; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
         th, td { border: 1px solid var(--border); padding: 12px; }
         th { background: #f1f5f9; text-align: center; font-weight: 800; }
@@ -38,14 +34,19 @@
         .entry-row-editable { display: grid; grid-template-columns: 1fr 150px 30px 30px; padding: 10px; border-bottom: 1px solid #f1f5f9; gap: 8px; align-items: center; }
         .entry-row-head { background: #e2e8f0; font-weight: 900; padding: 10px; display: grid; grid-template-columns: 1fr 200px; }
         input[readonly] { background-color: #e2e8f0; cursor: not-allowed; font-weight: bold; }
-        input[type="text"], input[type="number"], input[type="password"], select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        input[type="number"], select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; }
         .btn { padding: 12px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; }
         .btn-primary { background: var(--accent); color: white; }
         .btn-success { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 18px; }
         .btn-save { background: var(--success); color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
         .btn-delete { background: var(--danger); color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
+        .error-msg { color: red; font-size: 12px; margin-top: 5px; }
         .info-msg { color: #0891b2; font-size: 12px; padding: 10px; background: #ecf0f1; border-radius: 4px; margin-bottom: 10px; }
-        .footer { text-align: center; padding: 15px; background: white; border-top: 1px solid #e2e8f0; margin-top: 30px; color: #94a3b8; font-size: 11px; }
+        .report-header { text-align: center; margin-bottom: 20px; }
+        .report-title { font-size: 16px; font-weight: 900; color: var(--primary); }
+        .report-division { font-size: 14px; font-weight: 700; color: var(--accent); margin-top: 5px; }
+        .report-period { font-size: 12px; font-weight: 600; color: #475569; margin-top: 5px; }
+        .footer { text-align: center; padding: 15px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; margin-top: 20px; font-style: italic; }
         @media print { .nav-bar, .controls, .header, .btn, .login-screen, .footer { display: none !important; } .container { margin: 0; width: 100%; } }
     </style>
 </head>
@@ -53,34 +54,23 @@
 
 <div id="login-gate" class="login-screen">
     <div class="login-card">
-        <h2>RMS Login</h2>
-        <p>Revenue Management System (Non-Tax Revenue)</p>
-        <div class="control-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Division Name</label>
-            <input type="text" id="div-in" placeholder="e.g., Wildlife Division, Thiruvananthapuram">
-        </div>
-        <div class="control-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Username</label>
-            <input type="text" id="user-in" placeholder="Username">
-        </div>
-        <div class="control-group" style="margin-bottom: 15px; text-align: left;">
-            <label>Password</label>
-            <input type="password" id="pass-in" placeholder="Password">
-        </div>
+        <h2 style="color: var(--primary); margin-bottom: 5px;">RMS</h2>
+        <p style="color: #64748b; font-size: 12px; margin: 0 0 20px;">Revenue Management System</p>
+        <input type="text" id="user-in" placeholder="Username" style="margin-bottom:10px; width:100%; padding:10px;">
+        <input type="password" id="pass-in" placeholder="Password" style="margin-bottom:20px; width:100%; padding:10px;">
         <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Login</button>
-        <p id="login-err" style="color:red; margin-top:10px; margin-bottom: 0;"></p>
+        <p id="login-err" style="color:red; margin-top:10px"></p>
+        <p style="font-size: 11px; color: #94a3b8; margin-top: 15px; font-style: italic;">By Anil AV, Irumpupalam</p>
     </div>
 </div>
 
 <div class="header">
-    <div class="header-title">
-        <div class="app-name">🔐 RMS - Revenue Management System</div>
-        <div class="division-name" id="division-display">Non-Tax Revenue Collection</div>
-    </div>
-    <div style="text-align: right;">
-        <div id="user-info">Office: <span id="current-user"></span> | <button onclick="location.reload()">Logout</button></div>
+    <div class="header-left">
+        <div class="header-title">RMS - Revenue Management System (Non Tax Revenue)</div>
+        <div class="header-subtitle" id="division-display">Division Name</div>
         <div class="header-credit">By Anil AV, Irumpupalam</div>
     </div>
+    <div id="user-info">Office: <span id="current-user"></span> | <button onclick="location.reload()">Logout</button></div>
 </div>
 
 <div class="nav-bar">
@@ -95,10 +85,9 @@
             <h3 style="margin:0 0 15px">Monthly Data Entry</h3>
             <div id="edit-window-msg" class="info-msg" style="display:none;"></div>
             <div class="controls" style="background: #fffbeb;">
-                <div class="control-group"><label>Entry Date</label><input type="text" id="display-today" readonly></div>
-                <div class="control-group"><label>Division</label><input type="text" id="entry-division" readonly></div>
-                <div class="control-group"><label>Office</label><input type="text" id="entry-office" readonly></div>
-                <div class="control-group"><label>Reporting Period (Auto-calculated)</label><input type="text" id="entry-period-label" readonly></div>
+                <div style="flex:1"><label>Entry Date</label><input type="text" id="display-today" readonly></div>
+                <div style="flex:1"><label>Office</label><input type="text" id="entry-office" readonly></div>
+                <div style="flex:2"><label>Reporting Period (Auto-calculated)</label><input type="text" id="entry-period-label" readonly></div>
             </div>
             <div id="form-container"></div>
             <div id="success-msg" style="display:none; padding:20px; background:#dcfce7; border:1px solid #166534; border-radius:8px; margin-top:20px; text-align:center;">
@@ -112,14 +101,14 @@
     <div id="view-report" class="content-view" style="display:none">
         <div class="card">
             <div class="controls">
-                <div class="control-group"><label>Financial Year</label>
+                <div style="flex:1"><label>Financial Year</label>
                     <select id="rep-fy">
                         <option value="2025-2026">2025-2026</option>
                         <option value="2026-2027">2026-2027</option>
                     </select>
                 </div>
-                <div class="control-group"><label>Office</label><select id="rep-office-sel"></select></div>
-                <div class="control-group"><label>Report Month</label>
+                <div style="flex:1"><label>Office</label><select id="rep-office-sel"></select></div>
+                <div style="flex:1"><label>Report Month</label>
                     <select id="rep-month">
                         <option value="0">April</option><option value="1">May</option><option value="2">June</option>
                         <option value="3">July</option><option value="4">August</option><option value="5">September</option>
@@ -127,17 +116,17 @@
                         <option value="9">January</option><option value="10">February</option><option value="11">March</option>
                     </select>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-primary" onclick="generateReport()">Show Report</button>
-                    <button class="btn" style="background:#475569; color:white" onclick="window.print()">Print</button>
-                </div>
+                <button class="btn btn-primary" onclick="generateReport()">Show Report</button>
+                <button class="btn" style="background:#475569; color:white" onclick="window.print()">Print</button>
             </div>
             <div id="print-area">
-                <div style="text-align:center">
-                    <h3 style="margin:0">Proforma for Collection of Revenue</h3>
-                    <p id="report-period-text" style="font-weight:bold; color:var(--accent)"></p>
+                <div class="report-header">
+                    <div class="report-title">Proforma for Collection of Revenue</div>
+                    <div class="report-division" id="report-division-name"></div>
+                    <div class="report-period" id="report-period-text"></div>
                 </div>
                 <table id="report-table"></table>
+                <div class="footer" style="display: block;">By Anil AV, Irumpupalam</div>
             </div>
         </div>
     </div>
@@ -145,6 +134,8 @@
     <div id="view-settings" class="content-view" style="display:none">
         <div class="card">
             <h3>Admin Settings</h3>
+            <label>Division Name</label>
+            <input type="text" id="set-division" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; margin-bottom:20px;" placeholder="e.g., Wildlife Division, Thiruvananthapuram">
             <p style="color: #666; font-size: 12px; margin-bottom: 10px;">
                 <strong>Format:</strong> Add # before Head codes to identify them. Components are listed under each Head.
             </p>
@@ -163,12 +154,8 @@ Timber</pre>
     </div>
 </div>
 
-<div class="footer">
-    RMS (Revenue Management System - Non Tax Revenue) | By Anil AV, Irumpupalam | Department of Forest & Wildlife Protection, Kerala
-</div>
-
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6yKLvexvo2Gck_JMbZF7oCmZG8OAllf970NjxwHFNkW5gX9ki87wVY3IY1lQ5ugQ-/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNRY2TjmSH68h4YdPqCd_ixN_OR3hO4rmw0C3sZRckLYbtNp5qiWsnN4078UR5k4KW/exec"; 
     let items = [
         "#0406-01-101-94",
         "Compounding fee-Kottoor",
@@ -177,8 +164,8 @@ Timber</pre>
         "Camera Fee"
     ];
     let offices = ["KOTTOOR", "NEYYAR", "PEPPARA"];
+    let divisionName = "Wildlife Division, Thiruvananthapuram";
     let userRole = "";
-    let currentDivision = "";
     let currentPeriod = {};
     let submittedEntries = {};
 
@@ -200,21 +187,13 @@ Timber</pre>
     }
 
     function handleLogin() {
-        const d = document.getElementById('div-in').value.trim();
         const u = document.getElementById('user-in').value.trim().toUpperCase();
         const p = document.getElementById('pass-in').value;
-        
-        if(!d) { document.getElementById('login-err').innerText = "Please enter Division Name"; return; }
-        if(!u) { document.getElementById('login-err').innerText = "Please enter Username"; return; }
-        
         if(u === 'ADMIN' && p === 'admin123') userRole = 'admin';
         else if(offices.includes(u) && p === 'pass123') userRole = 'office';
         else { document.getElementById('login-err').innerText = "Login Failed"; return; }
-        
-        currentDivision = d;
         document.getElementById('login-gate').style.display = 'none';
         document.getElementById('current-user').innerText = u;
-        document.getElementById('division-display').innerText = d;
         if(userRole === 'admin') document.getElementById('nav-settings').style.display = 'block';
         initApp(u);
     }
@@ -239,6 +218,9 @@ Timber</pre>
     function initApp(u) {
         if(localStorage.getItem('sys_offices')) offices = JSON.parse(localStorage.getItem('sys_offices'));
         if(localStorage.getItem('sys_items')) items = JSON.parse(localStorage.getItem('sys_items'));
+        if(localStorage.getItem('sys_division')) divisionName = localStorage.getItem('sys_division');
+        
+        document.getElementById('division-display').innerText = divisionName;
         
         const today = new Date();
         const day = today.getDate();
@@ -278,7 +260,6 @@ Timber</pre>
         };
 
         document.getElementById('display-today').value = today.toLocaleDateString('en-GB');
-        document.getElementById('entry-division').value = currentDivision;
         document.getElementById('entry-office').value = u;
         document.getElementById('entry-period-label').value = `${startD} to ${endD}`;
         document.getElementById('entry-period-label').dataset.m = rMonth;
@@ -306,21 +287,19 @@ Timber</pre>
                 const currentOffice = document.getElementById('entry-office').value;
                 
                 raw.slice(1).forEach(r => {
-                    const rDivision = r[1];
-                    const rOffice = r[2];
-                    const rMonth = parseInt(r[4]);
-                    const rYear = parseInt(r[5]);
-                    const rHalf = parseInt(r[9]);
-                    const rEntryId = r[10];
+                    const rOffice = r[1];
+                    const rMonth = parseInt(r[3]);
+                    const rYear = parseInt(r[4]);
+                    const rHalf = parseInt(r[8]);
+                    const rEntryId = r[9];
                     
-                    if(rDivision === currentDivision &&
-                       rOffice === currentOffice && 
+                    if(rOffice === currentOffice && 
                        rMonth === currentPeriod.month && 
                        rYear === currentPeriod.year && 
                        rHalf === currentPeriod.half) {
-                        const rHead = r[6];
-                        const rComponent = r[7];
-                        const rAmount = parseFloat(r[8]);
+                        const rHead = r[5];
+                        const rComponent = r[6];
+                        const rAmount = parseFloat(r[7]);
                         
                         const key = rHead + "||" + rComponent;
                         submittedEntries[key] = {
@@ -494,7 +473,6 @@ Timber</pre>
                 const half = parseInt(document.getElementById('entry-period-label').dataset.h);
                 
                 packet.data.push({
-                    division: currentDivision,
                     office: document.getElementById('entry-office').value,
                     period: period,
                     month: parseInt(document.getElementById('entry-period-label').dataset.m),
@@ -568,22 +546,20 @@ Timber</pre>
                     let p = 0, h1 = 0, h2 = 0;
                     
                     raw.slice(1).forEach(r => {
-                        const rDivision = r[1];
-                        const rOffice = r[2];
-                        const rMonth = parseInt(r[4]);
-                        const rYear = parseInt(r[5]);
-                        const rHead = r[6];
-                        const rComponent = r[7];
-                        const rAmount = parseFloat(r[8]);
-                        const rHalf = parseInt(r[9]);
+                        const rOffice = r[1];
+                        const rMonth = parseInt(r[3]);
+                        const rYear = parseInt(r[4]);
+                        const rHead = r[5];
+                        const rComponent = r[6];
+                        const rAmount = parseFloat(r[7]);
+                        const rHalf = parseInt(r[8]);
                         
                         const isCorrectFY = (rYear === startYear);
-                        const isCorrectDivision = (rDivision === currentDivision);
                         const isCorrectOffice = (office === "DIVISION" || rOffice === office);
                         const isCorrectHead = (rHead === head);
                         const isCorrectComponent = (rComponent === component);
                         
-                        if (isCorrectFY && isCorrectDivision && isCorrectOffice && isCorrectHead && isCorrectComponent) {
+                        if (isCorrectFY && isCorrectOffice && isCorrectHead && isCorrectComponent) {
                             if (rMonth < selMonth) {
                                 p += rAmount;
                             } 
@@ -634,8 +610,9 @@ Timber</pre>
             table.innerHTML = html + "</tbody>";
             
             const monthNames = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
+            document.getElementById('report-division-name').innerText = divisionName;
             document.getElementById('report-period-text').innerText = 
-                `Division: ${currentDivision} | Month: ${monthNames[selMonth]} (FY ${fy})`;
+                `Month: ${monthNames[selMonth]} (FY ${fy})`;
         } catch(e) { 
             table.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Error: " + e.message + "</td></tr>"; 
         }
@@ -647,16 +624,20 @@ Timber</pre>
         document.getElementById('view-'+v).style.display='block';
         document.getElementById('nav-'+v).classList.add('active');
         if(v === 'settings') { 
+            document.getElementById('set-division').value = divisionName;
             document.getElementById('set-items').value = items.join("\n"); 
             document.getElementById('set-offices').value = offices.join("\n"); 
         }
     }
 
     function saveSettings() {
+        divisionName = document.getElementById('set-division').value || "Wildlife Division";
         items = document.getElementById('set-items').value.split("\n").filter(x => x.trim());
         offices = document.getElementById('set-offices').value.split("\n").filter(x => x.trim());
+        localStorage.setItem('sys_division', divisionName);
         localStorage.setItem('sys_items', JSON.stringify(items));
         localStorage.setItem('sys_offices', JSON.stringify(offices));
+        document.getElementById('division-display').innerText = divisionName;
         alert("Settings Saved!"); 
         location.reload();
     }
