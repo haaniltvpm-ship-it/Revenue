@@ -3,59 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kerala Forest Revenue MIS</title>
+    <title>DIVISIONWISE NON TAX REVENUE COLLECTION</title>
     <style>
-        :root { --primary: #064e3b; --accent: #2563eb; --bg: #f1f5f9; --border: #475569; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        :root { --primary: #0f172a; --accent: #2563eb; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
         
-        /* Login */
-        .login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-card { background: white; padding: 40px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        /* Branding & Header */
+        .header { background: white; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; }
+        .app-title { font-weight: 800; color: var(--primary); font-size: 1.2rem; }
+        .credit { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         
-        /* Layout */
-        .header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 2px solid #cbd5e1; align-items: center; }
-        .nav-bar { background: white; display: flex; gap: 20px; padding: 0 30px; border-bottom: 1px solid #cbd5e1; }
-        .nav-item { padding: 15px 0; cursor: pointer; font-weight: 700; color: #64748b; border-bottom: 3px solid transparent; }
-        .nav-item.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
-        .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        /* Navigation */
+        .nav-bar { background: #f1f5f9; display: flex; gap: 20px; padding: 0 25px; border-bottom: 1px solid #cbd5e1; }
+        .nav-item { padding: 12px 0; cursor: pointer; font-weight: 700; color: #64748b; border-bottom: 3px solid transparent; font-size: 13px; }
+        .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
         
-        /* Form & Tables */
-        .controls { display: flex; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end; border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
-        th, td { border: 1px solid #94a3b8; padding: 10px; }
-        th { background: #f1f5f9; font-weight: 800; text-align: center; }
-        .head-row { background: #e2e8f0; font-weight: 900; color: #0f172a; }
-        .subtotal-row { background: #f0fdf4; font-weight: 800; color: #166534; }
-        .grand-total-row { background: #1e293b; color: white; font-weight: 900; }
+        /* UI Components */
+        .container { max-width: 950px; margin: 15px auto; padding: 0 15px; }
+        .card { background: white; border-radius: 4px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        
+        /* Compact Report Tables */
+        table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 5px; }
+        th, td { border: 1px solid #475569; padding: 4px 6px; }
+        th { background: #f1f5f9; font-weight: bold; text-align: center; }
         .num { text-align: right; font-family: 'Courier New', monospace; font-weight: bold; }
+        .head-row { background: #e2e8f0; font-weight: bold; font-size: 11px; }
+        .subtotal-row { background: #f0fdf4; font-weight: bold; color: #166534; }
+        .grand-total-row { background: #0f172a; color: white; font-weight: bold; }
         
-        .entry-row { display: grid; grid-template-columns: 1fr 180px; padding: 10px; border-bottom: 1px solid #f1f5f9; align-items: center; }
-        input[type="number"] { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box; text-align: right; font-weight: bold; }
-        input[readonly] { background: #f1f5f9; cursor: not-allowed; }
+        /* Login Overlay */
+        .login-screen { position: fixed; inset: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .login-card { background: white; padding: 30px; border-radius: 8px; width: 300px; text-align: center; }
         
-        .btn { padding: 10px 20px; border-radius: 6px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-success { background: #10b981; color: white; width: 100%; margin-top: 20px; font-size: 16px; }
+        /* Data Entry Fields */
+        input[type="number"] { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 130px; text-align: right; font-weight: bold; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        @media print { .nav-bar, .controls, .header, .btn, .login-screen { display: none !important; } .container { width: 100%; max-width: 100%; } }
+        .btn { padding: 10px 18px; border-radius: 4px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; }
+        .btn:hover { opacity: 0.9; }
+
+        @media print { 
+            .nav-bar, .header, .btn, .controls, .login-screen { display: none !important; }
+            .container { width: 100%; max-width: 100%; margin: 0; padding: 0; }
+            table { font-size: 10px; line-height: 1.1; width: 100%; }
+            .card { border: none; padding: 0; }
+            @page { size: A4; margin: 0.8cm; }
+        }
     </style>
 </head>
 <body>
 
 <div id="login-gate" class="login-screen">
     <div class="login-card">
-        <h2 style="color:var(--primary); margin-top:0;">Revenue MIS</h2>
-        <input type="text" id="user-in" placeholder="Office Name (Username)" style="margin-bottom:10px; padding:12px; width:100%; box-sizing:border-box; border:1px solid #ccc; border-radius:4px;">
-        <input type="password" id="pass-in" placeholder="Password" style="margin-bottom:20px; padding:12px; width:100%; box-sizing:border-box; border:1px solid #ccc; border-radius:4px;">
-        <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Login</button>
-        <p id="login-err" style="color:#dc2626; font-size:13px; margin-top:10px;"></p>
+        <h3 style="margin-top:0">REVENUE MIS LOGIN</h3>
+        <input type="text" id="user-in" placeholder="Office Name" style="width:100%; margin-bottom:10px; padding:10px; box-sizing: border-box;">
+        <input type="password" id="pass-in" placeholder="Password" style="width:100%; margin-bottom:15px; padding:10px; box-sizing: border-box;">
+        <button class="btn" style="background:#2563eb; color:white; width:100%" onclick="handleLogin()">LOGIN</button>
+        <p class="credit" style="margin-top:20px;">By: ANILAVIRUMPUPALAM</p>
     </div>
 </div>
 
 <div class="header">
-    <div style="font-size:18px;">Wildlife Division, Thiruvananthapuram</div>
-    <div id="user-info">User: <span id="current-user" style="color:var(--accent)"></span> | <button onclick="location.reload()" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold;">Logout</button></div>
+    <div>
+        <div class="app-title">DIVISIONWISE NON TAX REVENUE COLLECTION</div>
+        <div class="credit">Developed By: ANILAVIRUMPUPALAM</div>
+    </div>
+    <div id="div-display" style="font-weight:bold; color:var(--accent)"></div>
 </div>
 
 <div class="nav-bar">
@@ -67,40 +80,34 @@
 <div class="container">
     <div id="view-entry" class="content-view">
         <div class="card">
-            <h3 style="margin:0 0 15px">Fortnightly Revenue Entry</h3>
-            <div class="controls" style="background:#fff7ed">
-                <div style="flex:1"><label style="font-size:11px; display:block;">Entry Date</label><input type="text" id="display-today" readonly></div>
-                <div style="flex:1"><label style="font-size:11px; display:block;">Office</label><input type="text" id="entry-office" readonly></div>
-                <div style="flex:2"><label style="font-size:11px; display:block;">Reporting Period (Auto)</label><input type="text" id="entry-period-label" readonly></div>
+            <div style="display:flex; gap:10px; background:#fff7ed; padding:12px; border-radius:4px; margin-bottom:15px; font-size:13px; border:1px solid #ffedd5;">
+                <div style="flex:1">Office: <span id="entry-office" style="font-weight:bold"></span></div>
+                <div style="flex:2">Reporting Period: <span id="entry-period" style="font-weight:bold"></span></div>
             </div>
             <div id="form-container"></div>
-            <div id="success-msg" style="display:none; padding:15px; background:#f0fdf4; border:1px solid #16a34a; border-radius:6px; margin-top:20px; text-align:center; color:#166534">
-                <b>Data Synced Successfully!</b><br>Values are saved to the master sheet.
-            </div>
-            <button class="btn btn-success" id="submit-btn" onclick="submitData()">Save & Finalize</button>
+            <button class="btn" style="background:#059669; color:white; width:100%; margin-top:20px; font-size:16px;" id="submit-btn" onclick="submitData()">SAVE REVENUE DATA</button>
+            <div id="success-msg" style="display:none; text-align:center; color:#059669; margin-top:15px; font-weight:bold; padding:10px; border:1px solid #059669; border-radius:4px;">✔ DATA SYNCED SUCCESSFULLY</div>
         </div>
     </div>
 
     <div id="view-report" class="content-view" style="display:none">
         <div class="card">
-            <div class="controls">
-                <div style="flex:1"><label style="font-size:12px;">FY</label><select id="rep-fy" style="width:100%; padding:8px;"><option>2025-2026</option><option>2026-2027</option></select></div>
-                <div style="flex:1.5"><label style="font-size:12px;">Office</label><select id="rep-office-sel" style="width:100%; padding:8px;"></select></div>
-                <div style="flex:1"><label style="font-size:12px;">Month</label>
-                    <select id="rep-month" style="width:100%; padding:8px;">
-                        <option value="3">April</option><option value="4">May</option><option value="5">June</option>
-                        <option value="6">July</option><option value="7">August</option><option value="8">September</option>
-                        <option value="9">October</option><option value="10">November</option><option value="11">December</option>
-                        <option value="0">January</option><option value="1">February</option><option value="2">March</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" onclick="generateReport()">Show Report</button>
-                <button class="btn" style="background:#475569; color:white" onclick="window.print()">Print</button>
+            <div class="controls" style="display:flex; gap:5px; margin-bottom:10px; flex-wrap: wrap;">
+                <select id="rep-fy" style="padding:5px;"><option>2025-2026</option><option>2026-2027</option></select>
+                <select id="rep-month" style="padding:5px;">
+                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                    <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                </select>
+                <select id="rep-office-sel" style="padding:5px;"></select>
+                <button class="btn" style="background:var(--accent); color:white; padding:5px 12px;" onclick="generateReport()">Show Report</button>
+                <button class="btn" style="background:#475569; color:white; padding:5px 12px;" onclick="window.print()">Print A4</button>
             </div>
-            <div id="print-area">
-                <div style="text-align:center; margin-bottom:20px;">
-                    <h3 style="margin:0">PROFORMA FOR COLLECTION OF REVENUE</h3>
-                    <p id="report-period-text" style="font-weight:bold; color:var(--accent); margin:5px 0;"></p>
+            <div id="print-content">
+                <div style="text-align:center">
+                    <h3 id="print-div-name" style="margin:0"></h3>
+                    <p id="print-period" style="font-size:12px; font-weight:bold; margin:5px 0;"></p>
                 </div>
                 <table id="report-table"></table>
             </div>
@@ -109,210 +116,194 @@
 
     <div id="view-settings" class="content-view" style="display:none">
         <div class="card">
-            <h3>System Configuration</h3>
-            <label style="font-weight:bold;">Offices (One per line)</label>
-            <textarea id="set-offices" style="width:100%; height:80px; margin:8px 0 20px; padding:10px;"></textarea>
+            <h3 style="margin-top:0">System Configuration</h3>
+            <label style="font-size:12px; font-weight:bold;">Division/Unit Name</label><br>
+            <input type="text" id="set-div-name" style="width:100%; margin-bottom:15px; padding:8px; box-sizing: border-box;"><br>
             
-            <label style="font-weight:bold;">Budget Heads & Components</label>
-            <p style="font-size:12px; color:#64748b; margin:0;">Note: Any line starting with "0406" is treated as a Head Code. Lines below it are its components.</p>
-            <textarea id="set-heads" style="width:100%; height:300px; font-family:monospace; margin:8px 0; padding:10px;"></textarea>
+            <label style="font-size:12px; font-weight:bold;">Offices (One per line)</label><br>
+            <textarea id="set-offices" style="width:100%; height:60px; margin-bottom:15px; padding:8px; box-sizing: border-box;"></textarea><br>
             
-            <button class="btn btn-primary" onclick="saveSettings()">Apply Changes</button>
+            <label style="font-size:12px; font-weight:bold;">Budget Heads & Components (Start Heads with #)</label><br>
+            <textarea id="set-heads" style="width:100%; height:250px; font-family:monospace; margin-bottom:15px; padding:8px; box-sizing: border-box;"></textarea>
+            
+            <button class="btn" style="background:var(--accent); color:white; width:100%;" onclick="saveSettings()">SAVE & APPLY CONFIGURATION</button>
+            <p class="credit" style="margin-top:20px; text-align:center;">Version 4.0 | ANILAVIRUMPUPALAM</p>
         </div>
     </div>
 </div>
 
 <script>
-    // 1. CONFIGURATION - CHANGE THIS URL TO YOUR DEPLOYED APPS SCRIPT URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyODpaMjU32Hb7GdOa2sucD2j8Ft-IShpW-_pxcSdYXycpsQhwh9caTF85VVxCjuYI2/exec";
+    // PASTE YOUR GOOGLE WEB APP URL BELOW
+    const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
 
-    let heads = ["0406-01-101-94", "Compounding fee-Kottoor", "Ground Rent", "0406-01-101-95-03-Reeds", "Reeds Sale", "0406-01-800-89", "Annual subscription of Aranyam"];
+    let heads = ["#0406-01-101-94", "Compounding fee", "#0406-01-101-95-03-Reeds", "Reeds Sale", "Other Items"];
     let offices = ["KOTTOOR", "NEYYAR", "PEPPARA"];
-    let userRole = "";
+    let divisionName = "Wildlife Division, Thiruvananthapuram";
 
     function handleLogin() {
         const u = document.getElementById('user-in').value.trim().toUpperCase();
         const p = document.getElementById('pass-in').value;
         if(u === 'ADMIN' && p === 'admin123') userRole = 'admin';
         else if(offices.includes(u) && p === 'pass123') userRole = 'office';
-        else { document.getElementById('login-err').innerText = "Invalid Credentials"; return; }
+        else { alert("Login Failed: Incorrect Username or Password"); return; }
         
         document.getElementById('login-gate').style.display = 'none';
-        document.getElementById('current-user').innerText = u;
         if(userRole === 'admin') document.getElementById('nav-settings').style.display = 'block';
         initApp(u);
     }
 
     function initApp(u) {
+        if(localStorage.getItem('sys_div')) divisionName = localStorage.getItem('sys_div');
         if(localStorage.getItem('sys_offices')) offices = JSON.parse(localStorage.getItem('sys_offices'));
         if(localStorage.getItem('sys_heads')) heads = JSON.parse(localStorage.getItem('sys_heads'));
         
+        document.getElementById('div-display').innerText = divisionName;
+        document.getElementById('entry-office').innerText = u;
+
         const now = new Date();
-        const day = now.getDate();
-        const month = now.getMonth();
-        const year = now.getFullYear();
-        let startD, endD, rMonth, rYear;
-
-        // Auto-detect reporting period
-        if (day <= 15) {
-            const prevMonthLastDay = new Date(year, month, 0).getDate();
-            startD = `16/${(month).toString().padStart(2,'0')}/${year}`;
-            endD = `${prevMonthLastDay}/${(month).toString().padStart(2,'0')}/${year}`;
-            rMonth = month - 1; rYear = year;
+        const d = now.getDate(); const m = now.getMonth(); const y = now.getFullYear();
+        let sP, rM, rY;
+        
+        if (d <= 15) {
+            const lastDayPrev = new Date(y, m, 0);
+            sP = `16/${m.toString().padStart(2,'0')}/${y} to ${lastDayPrev.getDate()}/${m.toString().padStart(2,'0')}/${y}`; 
+            rM = m-1; rY = y;
         } else {
-            startD = `01/${(month+1).toString().padStart(2,'0')}/${year}`;
-            endD = `15/${(month+1).toString().padStart(2,'0')}/${year}`;
-            rMonth = month; rYear = year;
+            sP = `01/${(m+1).toString().padStart(2,'0')}/${y} to 15/${(m+1).toString().padStart(2,'0')}/${y}`; 
+            rM = m; rY = y;
         }
-
-        document.getElementById('display-today').value = now.toLocaleDateString('en-GB');
-        document.getElementById('entry-office').value = u;
-        document.getElementById('entry-period-label').value = `${startD} to ${endD}`;
-        document.getElementById('entry-period-label').dataset.m = rMonth;
-        document.getElementById('entry-period-label').dataset.y = rYear;
+        
+        document.getElementById('entry-period').innerText = sP;
+        document.getElementById('entry-period').dataset.m = rM;
+        document.getElementById('entry-period').dataset.y = rY;
 
         const oSel = document.getElementById('rep-office-sel');
-        oSel.innerHTML = (userRole === 'admin') ? '<option value="DIVISION">DIVISION CONSOLIDATED</option>' : '';
-        offices.forEach(o => { if(userRole === 'admin' || o === u) oSel.add(new Option(o, o)); });
-        
+        oSel.innerHTML = (userRole==='admin')?'<option value="ALL">CONSOLIDATED (DIVISION)</option>':'';
+        offices.forEach(o => { if(userRole==='admin' || o===u) oSel.add(new Option(o,o)); });
+
         renderForm();
-        loadExistingData(u, document.getElementById('entry-period-label').value);
+        loadExistingData(u, sP);
     }
 
     function renderForm() {
-        const container = document.getElementById('form-container');
-        container.innerHTML = "";
-        let currentHeadCode = "UNSPECIFIED";
-        
+        const cont = document.getElementById('form-container'); cont.innerHTML = "";
+        let curH = "";
         heads.forEach(line => {
-            const trimmed = line.trim();
-            if(!trimmed) return;
-            
-            if(trimmed.startsWith('0406')) {
-                currentHeadCode = trimmed;
-                const div = document.createElement('div');
-                div.className = "entry-row head-row";
-                div.innerHTML = `<span>Head: ${trimmed}</span><span></span>`;
-                container.appendChild(div);
+            const t = line.trim();
+            if(!t) return;
+            if(t.startsWith('#')) {
+                curH = t.replace('#','');
+                const d = document.createElement('div');
+                d.className = "head-row"; d.style.padding = "8px"; d.innerText = "BUDGET HEAD: "+curH;
+                cont.appendChild(d);
             } else {
-                const div = document.createElement('div');
-                div.className = "entry-row";
-                // Store unique ID combining Head Code + Component Name
-                const uniqueId = `${currentHeadCode}|${trimmed}`;
-                div.innerHTML = `<span>${trimmed}</span><input type="number" class="val-in" data-comp="${trimmed}" data-fullid="${uniqueId}" value="0">`;
-                container.appendChild(div);
+                const d = document.createElement('div');
+                d.style.display = "flex"; d.style.padding = "8px"; d.style.borderBottom = "1px solid #eee"; d.style.alignItems = "center";
+                d.innerHTML = `<span style="flex:1; font-size:13px">${t}</span><input type="number" step="any" class="val-in" data-comp="${t}" data-hid="${curH}|${t}" value="0">`;
+                cont.appendChild(d);
             }
         });
     }
 
-    async function loadExistingData(office, period) {
+    async function loadExistingData(o, p) {
         try {
-            const resp = await fetch(SCRIPT_URL);
-            const data = await resp.json();
-            if(!data || data.length < 2) return;
-            
-            document.querySelectorAll('.val-in').forEach(input => {
-                const match = data.find(r => r[2] === office && r[3] === period && r[6] === input.dataset.fullid);
-                if(match) { 
-                    input.value = match[8]; 
-                    input.style.backgroundColor = "#e0f2fe";
-                    input.style.border = "2px solid #2563eb";
+            const r = await fetch(SCRIPT_URL);
+            const d = await r.json();
+            document.querySelectorAll('.val-in').forEach(i => {
+                const m = d.find(row => row[2]===o && row[3]===p && row[6]===i.dataset.hid);
+                if(m) { 
+                    i.value = m[8]; 
+                    i.style.background = "#fffbeb"; 
+                    i.style.border = "1px solid #f59e0b"; 
                 }
             });
-        } catch(e) { console.log("New period entry."); }
+        } catch(e) { console.log("New session/No data found."); }
     }
 
     async function submitData() {
-        if(!confirm("Submit these figures to the master sheet?")) return;
+        if(!confirm("Are you sure you want to save these revenue figures?")) return;
         const btn = document.getElementById('submit-btn');
-        btn.innerText = "Processing..."; btn.disabled = true;
+        btn.disabled = true; btn.innerText = "Syncing with Server...";
         
-        const payload = [];
+        const packet = [];
         document.querySelectorAll('.val-in').forEach(i => {
-            payload.push({
-                user: document.getElementById('current-user').innerText,
-                office: document.getElementById('entry-office').value,
-                period: document.getElementById('entry-period-label').value,
-                month: document.getElementById('entry-period-label').dataset.m,
-                year: document.getElementById('entry-period-label').dataset.y,
-                fullHeadId: i.dataset.fullid,
-                component: i.dataset.comp,
-                amount: i.value || 0
+            packet.push({
+                user: "OFFICE", 
+                office: document.getElementById('entry-office').innerText,
+                period: document.getElementById('entry-period').innerText,
+                month: document.getElementById('entry-period').dataset.m,
+                year: document.getElementById('entry-period').dataset.y,
+                fullHeadId: i.dataset.hid, 
+                component: i.dataset.comp, 
+                amount: i.value || 0,
+                divisionName: divisionName
             });
         });
 
         try {
-            const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-            const result = await response.text();
-            if(result === "Success") {
+            const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(packet) });
+            if(resp.ok) {
                 document.getElementById('success-msg').style.display = "block";
                 btn.style.display = "none";
-                document.getElementById('form-container').style.opacity = "0.5";
-                document.getElementById('form-container').style.pointerEvents = "none";
-            } else { alert("Server Error: " + result); btn.disabled = false; }
-        } catch(e) { alert("Network Error. Check internet."); btn.disabled = false; }
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+        } catch(e) { alert("Submission Failed. Check Connection."); btn.disabled = false; }
     }
 
     async function generateReport() {
         const table = document.getElementById('report-table');
-        const selMonth = parseInt(document.getElementById('rep-month').value);
-        const office = document.getElementById('rep-office-sel').value;
+        const mIdx = parseInt(document.getElementById('rep-month').value);
+        const off = document.getElementById('rep-office-sel').value;
         const fy = document.getElementById('rep-fy').value;
-        const monthOrder = [3,4,5,6,7,8,9,10,11,0,1,2]; // FY sequence
-        
-        table.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:40px;'>Calculating Financial Year Data...</td></tr>";
+        table.innerHTML = "<tr><td colspan='6' style='text-align:center'>Loading Financial Data...</td></tr>";
 
         try {
             const resp = await fetch(SCRIPT_URL);
             const raw = await resp.json();
+            const mOrder = [3,4,5,6,7,8,9,10,11,0,1,2];
             
-            let html = `<thead><tr><th rowspan="2">Head of Account</th><th rowspan="2">Prev. Months</th><th colspan="2">Current Month</th><th rowspan="2">Month Total</th><th rowspan="2">Progressive</th></tr><tr><th>1st-15th</th><th>16th-End</th></tr></thead><tbody>`;
+            let html = `<thead><tr><th rowspan="2">Head / Component</th><th rowspan="2">Upto Prev. Month</th><th colspan="2">Current Month</th><th rowspan="2">Month Total</th><th rowspan="2">Progressive Total</th></tr><tr><th>1-15</th><th>16-End</th></tr></thead><tbody>`;
             let gP=0, g1=0, g2=0, gM=0, gT=0, sP=0, s1=0, s2=0, sM=0, sT=0;
-            let currentHeadCode = "";
-            let firstHead = true;
+            let curH = ""; let first = true;
 
-            heads.forEach((line, index) => {
-                const trimmed = line.trim();
-                if(!trimmed) return;
-
-                if(trimmed.startsWith('0406')) {
-                    if(!firstHead) { html += renderRow("Sub Total", sP, s1, s2, sM, sT, "subtotal-row"); sP=s1=s2=sM=sT=0; }
-                    html += `<tr class="head-row"><td colspan="6">${trimmed}</td></tr>`;
-                    currentHeadCode = trimmed; firstHead = false;
+            heads.forEach((line, idx) => {
+                const t = line.trim();
+                if(!t) return;
+                if(t.startsWith('#')) {
+                    if(!first) { html += renderRow("SUB TOTAL", sP, s1, s2, sM, sT, "subtotal-row"); sP=s1=s2=sM=sT=0; }
+                    curH = t.replace('#','');
+                    html += `<tr class="head-row"><td colspan="6">${curH}</td></tr>`;
+                    first = false;
                 } else {
-                    let p=0, c1=0, c2=0;
-                    const fullId = `${currentHeadCode}|${trimmed}`;
-                    
+                    let p=0, c1=0, c2=0; const fid = `${curH}|${t}`;
                     raw.slice(1).forEach(r => {
                         const rM = parseInt(r[4]); const rY = parseInt(r[5]);
-                        const startY = parseInt(fy.split("-")[0]); const endY = parseInt(fy.split("-")[1]);
-                        let isFY = (rM >= 3 && rY === startY) || (rM <= 2 && rY === endY);
-                        
-                        if(isFY && (office==="DIVISION" || r[2]===office) && r[6]===fullId) {
+                        const sY = parseInt(fy.split("-")[0]); const eY = parseInt(fy.split("-")[1]);
+                        let isFY = (rM >= 3 && rY === sY) || (rM <= 2 && rY === eY);
+                        if(isFY && (off==="ALL" || r[2]===off) && r[6]===fid) {
                             const val = parseFloat(r[8]) || 0;
-                            if(monthOrder.indexOf(rM) < monthOrder.indexOf(selMonth)) p += val;
-                            else if(rM === selMonth) { 
+                            if(mOrder.indexOf(rM) < mOrder.indexOf(mIdx)) p += val;
+                            else if(rM === mIdx) { 
                                 if(r[3].startsWith("01/")) c1 += val; else c2 += val; 
                             }
                         }
                     });
-                    
-                    let mT = c1 + c2, pT = p + mT;
-                    html += renderRow(trimmed, p, c1, c2, mT, pT, "");
+                    let mT = c1+c2, pT = p+mT;
+                    html += renderRow(t, p, c1, c2, mT, pT, "");
                     sP+=p; s1+=c1; s2+=c2; sM+=mT; sT+=pT;
                     gP+=p; g1+=c1; g2+=c2; gM+=mT; gT+=pT;
                 }
-                if(index === heads.length - 1) html += renderRow("Sub Total", sP, s1, s2, sM, sT, "subtotal-row");
+                if(idx === heads.length-1) html += renderRow("SUB TOTAL", sP, s1, s2, sM, sT, "subtotal-row");
             });
-
-            html += renderRow("DIVISION TOTAL", gP, g1, g2, gM, gT, "grand-total-row");
+            html += renderRow("GRAND TOTAL (DIVISION)", gP, g1, g2, gM, gT, "grand-total-row");
             table.innerHTML = html + "</tbody>";
-            document.getElementById('report-period-text').innerText = `${document.getElementById('rep-month').options[document.getElementById('rep-month').selectedIndex].text} ${fy} (${office})`;
-        } catch(e) { table.innerHTML = "Error loading data."; }
+            document.getElementById('print-div-name').innerText = divisionName;
+            document.getElementById('print-period').innerText = `Period: ${document.getElementById('rep-month').options[document.getElementById('rep-month').selectedIndex].text} ${fy} (${off})`;
+        } catch(e) { table.innerHTML = "Error Generating Report."; }
     }
 
-    function renderRow(label, p, c1, c2, m, t, css) {
-        return `<tr class="${css}"><td>${label}</td><td class="num">${p.toFixed(2)}</td><td class="num">${c1.toFixed(2)}</td><td class="num">${c2.toFixed(2)}</td><td class="num">${m.toFixed(2)}</td><td class="num">${t.toFixed(2)}</td></tr>`;
+    function renderRow(l, p, c1, c2, m, t, s) {
+        return `<tr class="${s}"><td>${l}</td><td class="num">${p.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td><td class="num">${c1.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td><td class="num">${c2.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td><td class="num">${m.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td><td class="num">${t.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td></tr>`;
     }
 
     function showView(v) {
@@ -321,17 +312,20 @@
         document.getElementById('view-'+v).style.display='block';
         document.getElementById('nav-'+v).classList.add('active');
         if(v==='settings') { 
+            document.getElementById('set-div-name').value = divisionName;
             document.getElementById('set-offices').value=offices.join("\n"); 
             document.getElementById('set-heads').value=heads.join("\n"); 
         }
     }
 
     function saveSettings() {
+        divisionName = document.getElementById('set-div-name').value;
         offices = document.getElementById('set-offices').value.split("\n").filter(x => x.trim());
         heads = document.getElementById('set-heads').value.split("\n").filter(x => x.trim());
+        localStorage.setItem('sys_div', divisionName);
         localStorage.setItem('sys_offices', JSON.stringify(offices));
         localStorage.setItem('sys_heads', JSON.stringify(heads));
-        alert("Settings Saved Locally. Page will refresh."); location.reload();
+        alert("Configuration Saved. Page will now refresh."); location.reload();
     }
 </script>
 </body>
