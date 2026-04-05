@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Cloud - Wildlife Division</title>
+    <style>
+        :root { --primary: #0f172a; --accent: #2563eb; --success: #059669; --bg: #f8fafc; --border: #e2e8f0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
+        
+        /* Navigation */
+        .header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; }
+        .nav-tabs { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .nav-tab { flex: 1; padding: 15px; border: none; background: none; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .nav-tab.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
+
+        .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 20px; }
+
+        /* Login */
+        #login-gate { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-box { background: white; padding: 30px; border-radius: 15px; width: 300px; text-align: center; }
+
+        /* Inputs */
+        .rev-row { display: grid; grid-template-columns: 1fr 150px; padding: 10px; border-bottom: 1px solid #f1f5f9; align-items: center; }
+        .section-head { background: #f1f5f9; font-weight: bold; padding: 10px; margin-top: 10px; border-left: 4px solid var(--primary); }
+        input[type="number"] { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 5px; text-align: right; }
+        
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: right; }
+        td:first-child { text-align: left; background: white; position: sticky; left: 0; font-weight: bold; }
+
+        button { cursor: pointer; padding: 10px; border-radius: 6px; border: none; font-weight: bold; }
+        .btn-save { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<div id="login-gate">
+    <div class="login-box">
+        <h2>Office Login</h2>
+        <input type="text" id="user" placeholder="Username" style="width:90%; padding:10px; margin-bottom:10px;"><br>
+        <input type="password" id="pass" placeholder="Password" style="width:90%; padding:10px; margin-bottom:20px;"><br>
+        <button onclick="login()" style="background:var(--accent); color:white; width:100%">Login</button>
+    </div>
+</div>
+
+<div class="header">
+    <strong>Wildlife Division Revenue</strong>
+    <span id="user-tag"></span>
+</div>
+
+<div class="nav-tabs">
+    <button class="nav-tab active" onclick="tab('entry')">Data Entry</button>
+    <button class="nav-tab" onclick="tab('report')">View Cloud Report</button>
+    <button class="nav-tab" onclick="tab('settings')">Settings</button>
+</div>
+
+<div class="container">
+    <div id="tab-entry" class="tab-pane">
+        <div class="card">
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <div style="flex:1">
+                    <label>Office</label>
+                    <select id="sel-office" style="width:100%; padding:10px;"></select>
+                </div>
+                <div style="flex:1">
+                    <label>Period</label>
+                    <select id="sel-period" style="width:100%; padding:10px;"></select>
+                </div>
+            </div>
+            <div id="form-fields"></div>
+            <button class="btn-save" id="save-btn" onclick="uploadData()">Submit & Sync to Google Sheets</button>
+        </div>
+    </div>
+
+    <div id="tab-report" class="tab-pane" style="display:none">
+        <div class="card">
+            <button onclick="fetchCloudData()" style="background:var(--accent); color:white; margin-bottom:10px;">Refresh from Cloud</button>
+            <div style="overflow-x:auto">
+                <table id="cloud-table"></table>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-settings" class="tab-pane" style="display:none">
+        <div class="card">
+            <h3>Manage Offices</h3>
+            <textarea id="set-offices" style="width:100%; height:80px;"></textarea>
+            <h3>Manage Revenue Heads (One per line)</h3>
+            <textarea id="set-heads" style="width:100%; height:200px;"></textarea>
+            <button onclick="saveSettings()" style="background:var(--primary); color:white; margin-top:10px;">Apply Settings</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. CONFIGURATION - PASTE YOUR APPS SCRIPT URL HERE
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqOKRgmpm8y3Cja3EpoXYO4MUdMhCf923DHC6oCpFrE-8_xvu7n_9YI-GunXaQogRu/exec";
+
+    // 2. INITIAL DATA
+    let offices = ["KOTTOOR", "NEYYAR", "PEPPARA", "DIVISION"];
+    let heads = ["0406-01-101-94", "Compounding fee", "Ground Rent", "0406-01-800-95", "Camera Fee", "Entrance Fee"];
+    const periods = ["1/4-15/4", "16/4-30/4", "1/5-15/5", "16/5-31/5", "1/6-15/6", "16/6-30/6", "1/7-15/7", "16/7-31/7", "1/8-15/8", "16/8-31/8", "1/9-15/9", "16/9-30/9", "1/10-15/10", "16/10-31/10", "1/11-15/11", "16/11-30/11", "1/12-15/12", "16/12-31/12", "1/1-15/1", "16/1-31/1", "1/2-15/2", "16/2-28/2", "1/3-15/3", "16/3-31/3"];
+
+    function login() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(p === "pass123") { // Simple password for all
+            document.getElementById('login-gate').style.display='none';
+            document.getElementById('user-tag').innerText = "User: " + u;
+            init();
+        }
+    }
+
+    function init() {
+        // Load settings
+        if(localStorage.getItem('offices')) offices = JSON.parse(localStorage.getItem('offices'));
+        if(localStorage.getItem('heads')) heads = JSON.parse(localStorage.getItem('heads'));
+        
+        document.getElementById('set-offices').value = offices.join("\n");
+        document.getElementById('set-heads').value = heads.join("\n");
+
+        const oSel = document.getElementById('sel-office');
+        oSel.innerHTML = "";
+        offices.forEach(o => oSel.add(new Option(o, o)));
+
+        const pSel = document.getElementById('sel-period');
+        periods.forEach(p => pSel.add(new Option(p, p)));
+
+        renderForm();
+    }
+
+    function renderForm() {
+        const container = document.getElementById('form-fields');
+        container.innerHTML = "";
+        heads.forEach(h => {
+            const div = document.createElement('div');
+            if(h.includes('0406')) {
+                div.className = "section-head";
+                div.innerText = h;
+            } else {
+                div.className = "rev-row";
+                div.innerHTML = `<span>${h}</span><input type="number" class="val-input" data-head="${h}" value="0">`;
+            }
+            container.appendChild(div);
+        });
+    }
+
+    async function uploadData() {
+        const btn = document.getElementById('save-btn');
+        btn.innerText = "Syncing to Google Sheets...";
+        btn.disabled = true;
+
+        const data = [];
+        const office = document.getElementById('sel-office').value;
+        const period = document.getElementById('sel-period').value;
+        const user = document.getElementById('user').value;
+
+        document.querySelectorAll('.val-input').forEach(i => {
+            data.push({ user, office, period, head: i.dataset.head, amount: i.value });
+        });
+
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+            alert("Successfully synced to Google Sheets!");
+        } catch(e) {
+            alert("Error: Check your Internet and Script URL");
+        }
+        btn.innerText = "Submit & Sync to Google Sheets";
+        btn.disabled = false;
+    }
+
+    async function fetchCloudData() {
+        const table = document.getElementById('cloud-table');
+        table.innerHTML = "Loading...";
+        const resp = await fetch(SCRIPT_URL);
+        const rows = await resp.json();
+        
+        let html = "<tr><th>Head</th><th>User</th><th>Office</th><th>Period</th><th>Amount</th></tr>";
+        rows.slice(1).forEach(r => {
+            html += `<tr><td>${r[4]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[5]}</td></tr>`;
+        });
+        table.innerHTML = html;
+    }
+
+    function saveSettings() {
+        const newOffices = document.getElementById('set-offices').value.split("\n").filter(x => x);
+        const newHeads = document.getElementById('set-heads').value.split("\n").filter(x => x);
+        localStorage.setItem('offices', JSON.stringify(newOffices));
+        localStorage.setItem('heads', JSON.stringify(newHeads));
+        location.reload();
+    }
+
+    function tab(name) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.style.display='none');
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-'+name).style.display='block';
+        event.currentTarget.classList.add('active');
+    }
+</script>
+</body>
+</html>
