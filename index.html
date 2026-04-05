@@ -3,109 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Divisionwise Non Tax Revenue Collection</title>
+    <title>Revenue MIS - Wildlife Division TVM</title>
     <style>
-        :root { --primary: #064e3b; --accent: #2563eb; --bg: #f8fafc; --border: #475569; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        :root { --primary: #0f172a; --accent: #2563eb; --success: #059669; --bg: #f1f5f9; --border: #475569; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
         .login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .login-card { background: white; padding: 40px; border-radius: 12px; width: 320px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
-        .header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; align-items: center; font-weight: bold; }
-        .header-title { font-size: 16px; font-weight: 700; color: var(--primary); }
-        .header-subtitle { font-size: 11px; color: #64748b; margin-top: 2px; }
-        .nav-bar { background: white; display: flex; gap: 20px; padding: 0 30px; border-bottom: 1px solid #cbd5e1; }
+        .login-card { background: white; padding: 40px; border-radius: 16px; width: 340px; text-align: center; }
+        .header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; align-items: center; }
+        .nav-bar { background: white; display: flex; gap: 25px; padding: 0 30px; border-bottom: 1px solid #cbd5e1; }
         .nav-item { padding: 15px 0; cursor: pointer; font-weight: 700; color: #64748b; border-bottom: 3px solid transparent; }
-        .nav-item.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .controls { display: flex; gap: 10px; background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end; }
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
+        .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .controls { display: flex; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px; align-items: flex-end; border: 1px solid #cbd5e1; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
         th, td { border: 1px solid var(--border); padding: 8px; }
-        th { background: #f8fafc; font-weight: 800; }
+        th { background: #f1f5f9; text-align: center; font-weight: 800; }
         .head-row { background: #e2e8f0; font-weight: 900; }
-        .subtotal-row { background: #ecfdf5; font-weight: 800; color: #065f46; }
-        .grand-total-row { background: #0f172a; color: white; font-weight: 900; }
-        .num { text-align: right; font-family: monospace; font-weight: bold; }
-        .entry-row { display: grid; grid-template-columns: 1fr 1fr 180px 180px; gap: 8px; padding: 8px; border-bottom: 1px solid #f1f5f9; align-items: center; }
-        input[readonly] { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-weight: bold; }
-        input[type="number"], select { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; }
-        .btn { padding: 10px 20px; border-radius: 6px; font-weight: 700; border: none; cursor: pointer; }
+        .subtotal-row { background: #f0fdf4; font-weight: 800; color: #166534; }
+        .grand-total-row { background: #1e293b; color: white; font-weight: 900; }
+        .num { text-align: right; font-family: 'monospace'; font-weight: 700; }
+        .entry-row { display: grid; grid-template-columns: 1fr 200px; padding: 10px; border-bottom: 1px solid #f1f5f9; }
+        input[readonly] { background-color: #e2e8f0; cursor: not-allowed; font-weight: bold; }
+        input[type="number"], select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; }
+        .btn { padding: 12px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; }
         .btn-primary { background: var(--accent); color: white; }
-        .btn-success { background: #059669; color: white; width: 100%; margin-top: 20px; font-size: 16px; }
-        .entry-header { display: grid; grid-template-columns: 1fr 1fr 180px 180px; gap: 8px; font-weight: 700; color: #475569; font-size: 12px; margin-bottom: 10px; padding: 8px; background: #f1f5f9; border-radius: 4px; }
-        
-        /* Admin Settings Styling */
-        .settings-section { margin-bottom: 30px; }
-        .settings-section h4 { background: #e2e8f0; padding: 10px 15px; border-radius: 4px; margin: 0 0 15px 0; font-size: 14px; }
-        .head-block { background: #f8fafc; padding: 15px; border-left: 4px solid var(--primary); margin-bottom: 15px; border-radius: 4px; }
-        .head-code-input { background: #e2e8f0; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-weight: 700; border: 1px solid var(--border); }
-        .components-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-        .component-input { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; }
-        .add-comp-btn { padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
-        .remove-comp-btn { padding: 4px 8px; background: #dc2626; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px; }
-        .head-actions { display: flex; gap: 8px; margin-top: 10px; }
-        .remove-head-btn { padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 700; }
-        .head-code-display { display: inline-block; background: var(--primary); color: white; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 13px; margin-bottom: 10px; }
-        
-        @media print { .nav-bar, .controls, .header, .btn, .login-screen { display: none !important; } .container { width: 100%; margin:0; } }
+        .btn-success { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 18px; }
+        @media print { .nav-bar, .controls, .header, .btn, .login-screen { display: none !important; } .container { margin: 0; width: 100%; } }
     </style>
 </head>
 <body>
 
 <div id="login-gate" class="login-screen">
     <div class="login-card">
-        <h2 style="color:var(--primary)">Non Tax Revenue MIS</h2>
-        <input type="text" id="user-in" placeholder="Username" style="margin-bottom:10px; padding:10px; width:100%; box-sizing:border-box;">
-        <input type="password" id="pass-in" placeholder="Password" style="margin-bottom:20px; padding:10px; width:100%; box-sizing:border-box;">
+        <h2>Revenue MIS Login</h2>
+        <input type="text" id="user-in" placeholder="Username" style="margin-bottom:10px; width:100%; padding:10px;">
+        <input type="password" id="pass-in" placeholder="Password" style="margin-bottom:20px; width:100%; padding:10px;">
         <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Login</button>
-        <p id="login-err" style="color:#dc2626; font-size:13px; margin-top:10px;"></p>
+        <p id="login-err" style="color:red; margin-top:10px"></p>
     </div>
 </div>
 
 <div class="header">
-    <div>
-        <div class="header-title">DIVISIONWISE NON TAX REVENUE COLLECTION</div>
-        <div class="header-subtitle">Kerala Forest Department | Developed by: Avinanair</div>
-    </div>
-    <div id="user-info">Division: <span id="current-user" style="color:var(--accent)"></span> | <button onclick="location.reload()" style="cursor:pointer">Logout</button></div>
+    <div style="font-weight:800">Wildlife Division, Thiruvananthapuram</div>
+    <div id="user-info">User: <span id="current-user"></span> | <button onclick="location.reload()">Logout</button></div>
 </div>
 
 <div class="nav-bar">
     <div class="nav-item active" id="nav-entry" onclick="showView('entry')">DATA ENTRY</div>
-    <div class="nav-item" id="nav-report" onclick="showView('report')">PROGRESSIVE REPORT</div>
+    <div class="nav-item" id="nav-report" onclick="showView('report')">REVENUE REPORT</div>
     <div class="nav-item" id="nav-settings" style="display:none" onclick="showView('settings')">ADMIN SETTINGS</div>
 </div>
 
 <div class="container">
     <div id="view-entry" class="content-view">
         <div class="card">
-            <h3 style="margin:0 0 15px">Revenue Collection Entry</h3>
-            <div class="controls" style="background:#fff7ed">
-                <div style="flex:1"><label style="font-size:11px">Entry Date</label><input type="text" id="display-today" readonly></div>
-                <div style="flex:1"><label style="font-size:11px">Division</label><input type="text" id="entry-office" readonly></div>
-                <div style="flex:2"><label style="font-size:11px">Period (Fortnightly Cycle)</label><input type="text" id="entry-period-label" readonly></div>
+            <h3 style="margin:0 0 15px">Monthly Data Entry</h3>
+            <div class="controls" style="background: #fffbeb;">
+                <div style="flex:1"><label>Entry Date</label><input type="text" id="display-today" readonly></div>
+                <div style="flex:1"><label>Office</label><input type="text" id="entry-office" readonly></div>
+                <div style="flex:2"><label>Reporting Period (Auto-calculated)</label><input type="text" id="entry-period-label" readonly></div>
             </div>
-            
-            <div class="entry-header">
-                <span>Head</span>
-                <span>Component</span>
-                <span style="text-align:right">1st Half (1-15)</span>
-                <span style="text-align:right">2nd Half (16-31)</span>
-            </div>
-            
             <div id="form-container"></div>
-            <div id="success-msg" style="display:none; padding:15px; background:#f0fdf4; border:1px solid #16a34a; border-radius:6px; margin-top:20px; text-align:center; color:#166534">
-                <b>Data Saved Successfully!</b><br>You can revise these figures until the current reporting window closes.
+            <div id="success-msg" style="display:none; padding:20px; background:#dcfce7; border:1px solid #166534; border-radius:8px; margin-top:20px; text-align:center;">
+                <h4 style="color:#166534; margin:0">Data Updated Successfully!</h4>
+                <p style="margin:5px 0">Note: You cannot Edit/Delete data. Only Admin can perform these actions.</p>
             </div>
-            <button class="btn btn-success" id="submit-btn" onclick="submitData()">Save & Finalize</button>
+            <button class="btn btn-success" id="submit-btn" onclick="submitData()">Finalize & Upload</button>
         </div>
     </div>
 
     <div id="view-report" class="content-view" style="display:none">
         <div class="card">
             <div class="controls">
-                <div style="flex:1"><label>Financial Year</label><select id="rep-fy"><option>2025-2026</option><option>2026-2027</option></select></div>
-                <div style="flex:1.5"><label>Division</label><select id="rep-office-sel"></select></div>
-                <div style="flex:1"><label>Month</label>
+                <div style="flex:1"><label>Financial Year</label>
+                    <select id="rep-fy">
+                        <option value="2025-2026">2025-2026</option>
+                        <option value="2026-2027">2026-2027</option>
+                    </select>
+                </div>
+                <div style="flex:1"><label>Office</label><select id="rep-office-sel"></select></div>
+                <div style="flex:1"><label>Report Month</label>
                     <select id="rep-month">
                         <option value="3">April</option><option value="4">May</option><option value="5">June</option>
                         <option value="6">July</option><option value="7">August</option><option value="8">September</option>
@@ -113,12 +91,12 @@
                         <option value="0">January</option><option value="1">February</option><option value="2">March</option>
                     </select>
                 </div>
-                <button class="btn btn-primary" onclick="generateReport()">Generate</button>
+                <button class="btn btn-primary" onclick="generateReport()">Show Report</button>
                 <button class="btn" style="background:#475569; color:white" onclick="window.print()">Print</button>
             </div>
             <div id="print-area">
-                <div style="text-align:center; margin-bottom:20px;">
-                    <h2 style="margin:0">Revenue Collection Proforma</h2>
+                <div style="text-align:center">
+                    <h3 style="margin:0">Proforma for Collection of Revenue</h3>
                     <p id="report-period-text" style="font-weight:bold; color:var(--accent)"></p>
                 </div>
                 <table id="report-table"></table>
@@ -128,44 +106,17 @@
 
     <div id="view-settings" class="content-view" style="display:none">
         <div class="card">
-            <h3>Admin Configuration</h3>
-            
-            <!-- Divisions Section -->
-            <div class="settings-section">
-                <h4>📍 Divisions/Offices</h4>
-                <textarea id="set-offices" style="width:100%; height:100px; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-family:monospace;" placeholder="KOTTOOR&#10;NEYYAR&#10;PEPPARA"></textarea>
-                <small style="color:#64748b;">Enter each division on a new line</small>
-            </div>
-
-            <!-- Heads & Components Section -->
-            <div class="settings-section">
-                <h4>💰 Revenue Heads & Components</h4>
-                <p style="background:#fff7ed; padding:10px; border-left:4px solid #ea580c; border-radius:4px; margin-bottom:15px; font-size:13px; color:#78350f;">
-                    <strong>Format:</strong> Start each Head with <code style="background:white; padding:2px 6px; border-radius:3px;">#</code> symbol<br>
-                    <strong>Example:</strong><br>
-                    <code>#0406-01-800-89</code><br>
-                    <code>Annual subscription of Aranyam</code><br>
-                    <code>Membership Fee</code><br>
-                    <code>#0406-01-800-95-other items</code><br>
-                    <code>Camera/Video Camera fee</code><br>
-                    <code>Vehicle parking fee</code>
-                </p>
-                <textarea id="set-heads" style="width:100%; height:350px; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-family:monospace; font-size:13px;" placeholder="#0406-01-101-94&#10;Compounding&#10;Ground Rent&#10;#0406-01-102-95&#10;Camera Fee&#10;Parking Fee"></textarea>
-                <small style="color:#64748b;">Start each head code with <strong>#</strong>, then list components below it (one per line)</small>
-            </div>
-
-            <button class="btn btn-success" onclick="saveSettings()" style="margin-top:30px;">💾 Apply Changes</button>
+            <h3>Admin Settings</h3>
+            <label>Offices</label><textarea id="set-offices" style="width:100%; height:80px; margin-bottom:15px;"></textarea>
+            <label>Revenue Heads</label><textarea id="set-heads" style="width:100%; height:300px;"></textarea>
+            <button class="btn btn-primary" onclick="saveSettings()">Save Configuration</button>
         </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyW7WmEmY6TTYiSCDqZ17VW6btjvzDHxncSNASU8sAMVUnTEcsc0WCa4p2ddA6PE2ao/exec";
-    let headsData = [
-        { head: "0406-01-101-94", components: ["Compounding", "Ground Rent"] },
-        { head: "0406-01-102-95", components: ["Camera Fee", "Parking Fee"] },
-        { head: "0406-01-200-96", components: ["License Fee"] }
-    ];
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtIjuArHBGUCbxQMYgymmoaqkbAqkc1CNLvY7H9w9jJcsm1huCB5w8DBdBwpw8qtoI/exec"; 
+    let heads = ["0406-01-101-94", "Compounding fee-Kottoor", "Ground Rent", "0406-01-800-95", "Camera Fee"];
     let offices = ["KOTTOOR", "NEYYAR", "PEPPARA"];
     let userRole = "";
 
@@ -174,7 +125,7 @@
         const p = document.getElementById('pass-in').value;
         if(u === 'ADMIN' && p === 'admin123') userRole = 'admin';
         else if(offices.includes(u) && p === 'pass123') userRole = 'office';
-        else { document.getElementById('login-err').innerText = "Invalid Credentials"; return; }
+        else { document.getElementById('login-err').innerText = "Login Failed"; return; }
         document.getElementById('login-gate').style.display = 'none';
         document.getElementById('current-user').innerText = u;
         if(userRole === 'admin') document.getElementById('nav-settings').style.display = 'block';
@@ -183,23 +134,29 @@
 
     function initApp(u) {
         if(localStorage.getItem('sys_offices')) offices = JSON.parse(localStorage.getItem('sys_offices'));
-        if(localStorage.getItem('sys_heads')) headsData = JSON.parse(localStorage.getItem('sys_heads'));
+        if(localStorage.getItem('sys_heads')) heads = JSON.parse(localStorage.getItem('sys_heads'));
         
+        // --- CALCULATION LOGIC FOR AUTO PERIOD ---
         const today = new Date();
         const day = today.getDate();
-        const month = today.getMonth();
+        const month = today.getMonth(); // 0-11
         const year = today.getFullYear();
+        
         let startD, endD, rMonth, rYear;
-
+        
         if (day <= 15) {
+            // Case: 1st-15th -> Report for 16th-End of PREVIOUS month
+            const prevMonthDate = new Date(year, month, 0); // Last day of prev month
+            startD = `16/${(month).toString().padStart(2,'0')}/${year}`;
+            endD = `${prevMonthDate.getDate()}/${(month).toString().padStart(2,'0')}/${year}`;
+            rMonth = month - 1;
+            rYear = year;
+        } else {
+            // Case: 16th-31st -> Report for 1st-15th of CURRENT month
             startD = `01/${(month+1).toString().padStart(2,'0')}/${year}`;
             endD = `15/${(month+1).toString().padStart(2,'0')}/${year}`;
-            rMonth = month; rYear = year;
-        } else {
-            const nextMonth = new Date(year, month + 1, 0);
-            startD = `16/${(month+1).toString().padStart(2,'0')}/${year}`;
-            endD = `${nextMonth.getDate()}/${(month+1).toString().padStart(2,'0')}/${year}`;
-            rMonth = month; rYear = year;
+            rMonth = month;
+            rYear = year;
         }
 
         document.getElementById('display-today').value = today.toLocaleDateString('en-GB');
@@ -211,82 +168,53 @@
         const oSel = document.getElementById('rep-office-sel');
         oSel.innerHTML = (userRole === 'admin') ? '<option value="DIVISION">DIVISION CONSOLIDATED</option>' : '';
         offices.forEach(o => { if(userRole === 'admin' || o === u) oSel.add(new Option(o, o)); });
-        
         renderForm();
-        loadExistingValues(u, document.getElementById('entry-period-label').value);
     }
 
     function renderForm() {
         const container = document.getElementById('form-container');
         container.innerHTML = "";
-        
-        headsData.forEach(headObj => {
-            headObj.components.forEach(comp => {
-                const div = document.createElement('div');
+        heads.forEach(h => {
+            const div = document.createElement('div');
+            if(h.startsWith('0406')) {
+                div.className = "entry-row head-row";
+                div.innerHTML = `<span>${h}</span><span></span>`;
+            } else {
                 div.className = "entry-row";
-                div.innerHTML = `
-                    <span>${headObj.head}</span>
-                    <span>${comp}</span>
-                    <input type="number" class="val-in-1st" data-head="${headObj.head}" data-comp="${comp}" value="0">
-                    <input type="number" class="val-in-2nd" data-head="${headObj.head}" data-comp="${comp}" value="0">
-                `;
-                container.appendChild(div);
-            });
+                div.innerHTML = `<span>${h}</span><input type="number" class="val-in" data-h="${h}" value="0">`;
+            }
+            container.appendChild(div);
         });
-    }
-
-    async function loadExistingValues(office, period) {
-        try {
-            const resp = await fetch(SCRIPT_URL);
-            const raw = await resp.json();
-            document.querySelectorAll('.val-in-1st, .val-in-2nd').forEach(input => {
-                const head = input.dataset.head;
-                const comp = input.dataset.comp;
-                const isFst = input.classList.contains('val-in-1st');
-                
-                const match = raw.find(r => r[1] === office && r[2] === period && r[5] === head && r[6] === comp);
-                if(match) {
-                    const val = isFst ? match[7] : match[8];
-                    if(val > 0) {
-                        input.value = val;
-                        input.style.background = "#e0f2fe";
-                    }
-                }
-            });
-        } catch(e) { console.error("Load error:", e); }
     }
 
     async function submitData() {
-        if(!confirm("Do you want to save Data?\nOnce saved, you can only modify it until this reporting window closes.")) return;
+        // Confirmation Logic
+        const confirmSave = confirm("Do you want to save Data?\n\nIf saved, data could not be edited or deleted by you.");
+        if(!confirmSave) return;
+
         const btn = document.getElementById('submit-btn');
-        btn.innerText = "Saving to Cloud..."; btn.disabled = true;
+        btn.innerText = "Saving..."; btn.disabled = true;
+
         const packet = [];
-        
-        document.querySelectorAll('.val-in-1st').forEach(i => {
-            const val1st = parseFloat(i.value) || 0;
-            const val2nd = parseFloat(document.querySelector(`.val-in-2nd[data-head="${i.dataset.head}"][data-comp="${i.dataset.comp}"]`).value) || 0;
-            
-            if(val1st > 0 || val2nd > 0) {
-                packet.push({
-                    office: document.getElementById('entry-office').value,
-                    period: document.getElementById('entry-period-label').value,
-                    month: parseInt(document.getElementById('entry-period-label').dataset.m),
-                    year: parseInt(document.getElementById('entry-period-label').dataset.y),
-                    head: i.dataset.head,
-                    component: i.dataset.comp,
-                    amount1st: val1st,
-                    amount2nd: val2nd
-                });
-            }
+        document.querySelectorAll('.val-in').forEach(i => {
+            if(i.value > 0) packet.push({
+                user: document.getElementById('current-user').innerText,
+                office: document.getElementById('entry-office').value,
+                period: document.getElementById('entry-period-label').value,
+                month: document.getElementById('entry-period-label').dataset.m,
+                year: document.getElementById('entry-period-label').dataset.y,
+                head: i.dataset.h, amount: i.value
+            });
         });
-        
+
         try {
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(packet) });
+            // Custom Success Message (No Logout)
+            document.getElementById('form-container').style.opacity = "0.3";
+            document.getElementById('form-container').style.pointerEvents = "none";
             document.getElementById('success-msg').style.display = "block";
             btn.style.display = "none";
-            document.getElementById('form-container').style.pointerEvents = "none";
-            document.getElementById('form-container').style.opacity = "0.5";
-        } catch(e) { alert("Error saving."); btn.innerText = "Save & Finalize"; btn.disabled = false; }
+        } catch(e) { alert("Save failed."); btn.disabled = false; }
     }
 
     async function generateReport() {
@@ -294,52 +222,69 @@
         const selMonth = parseInt(document.getElementById('rep-month').value);
         const office = document.getElementById('rep-office-sel').value;
         const fy = document.getElementById('rep-fy').value;
-        table.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:50px;'>Calculating...</td></tr>";
+        
+        table.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:50px;'>Calculating for FY "+fy+"...</td></tr>";
 
         try {
             const resp = await fetch(SCRIPT_URL);
             const raw = await resp.json();
-            const monthOrder = [3,4,5,6,7,8,9,10,11,0,1,2];
-            
-            let html = `<thead><tr><th rowspan="2">Head</th><th rowspan="2">Component</th><th rowspan="2">Prev Months</th><th colspan="2">Current Month</th><th rowspan="2">Month Total</th><th rowspan="2">Grand Total</th></tr><tr><th>1-15</th><th>16-31</th></tr></thead><tbody>`;
-            let gPrev=0, gCur1=0, gCur2=0, gCurTotal=0, gGrandTotal=0;
+            let html = `<thead><tr><th rowspan="2">Head of Account</th><th rowspan="2">Revenue Previous (1)</th><th colspan="2">Collection Month</th><th rowspan="2">Total (2)</th><th rowspan="2">Grand Total</th></tr><tr><th>1st-15th</th><th>16th-End</th></tr></thead><tbody>`;
 
-            headsData.forEach((headObj, hidx) => {
-                let headPrev=0, headCur1=0, headCur2=0, headCurTotal=0, headGrandTotal=0;
-                
-                headObj.components.forEach(comp => {
-                    let p=0, c1=0, c2=0;
+            let gPrev = 0, gH1 = 0, gH2 = 0, gMonth = 0, gTotal = 0;
+            let sPrev = 0, sH1 = 0, sH2 = 0, sMonth = 0, sTotal = 0;
+            let firstHead = true;
+
+            heads.forEach((h, index) => {
+                if (h.startsWith('0406')) {
+                    if (!firstHead) {
+                        html += renderRow("Sub Total", sPrev, sH1, sH2, sMonth, sTotal, "subtotal-row");
+                        sPrev = 0; sH1 = 0; sH2 = 0; sMonth = 0; sTotal = 0;
+                    }
+                    html += `<tr class="head-row"><td colspan="6">${h}</td></tr>`;
+                    firstHead = false;
+                } else {
+                    let p = 0, h1 = 0, h2 = 0;
                     raw.slice(1).forEach(r => {
-                        const rMonth = parseInt(r[3]);
-                        const rYear = parseInt(r[4]);
-                        const startY = parseInt(fy.split("-")[0]);
-                        const endY = parseInt(fy.split("-")[1]);
-                        let validFY = (rMonth >= 3 && rYear === startY) || (rMonth <= 2 && rYear === endY);
+                        const rMonth = parseInt(r[4]);
+                        const rYear = parseInt(r[5]);
+                        const rHead = r[6];
                         
-                        if(validFY && (office==="DIVISION" || r[1]===office) && r[5]===headObj.head && r[6]===comp) {
-                            if(monthOrder.indexOf(rMonth) < monthOrder.indexOf(selMonth)) {
-                                p += parseFloat(r[7] || 0) + parseFloat(r[8] || 0);
-                            } else if(rMonth === selMonth) {
-                                c1 += parseFloat(r[7] || 0);
-                                c2 += parseFloat(r[8] || 0);
+                        // FY Filtering Logic (April to March)
+                        const startYear = parseInt(fy.split("-")[0]);
+                        const endYear = parseInt(fy.split("-")[1]);
+                        let isCorrectFY = false;
+                        
+                        if(rMonth >= 3 && rYear === startYear) isCorrectFY = true; // Apr-Dec
+                        if(rMonth <= 2 && rYear === endYear) isCorrectFY = true; // Jan-Mar
+
+                        if (isCorrectFY && (office === "DIVISION" || r[2] === office) && rHead === h) {
+                            // Column 1: Progressive (Sum of months from April up to current selected month)
+                            // We use a simplified month index where April=3, May=4... Feb=1, March=2
+                            const monthOrder = [3,4,5,6,7,8,9,10,11,0,1,2];
+                            const currentIdx = monthOrder.indexOf(selMonth);
+                            const recordIdx = monthOrder.indexOf(rMonth);
+
+                            if (recordIdx < currentIdx) p += parseFloat(r[7]);
+                            else if (recordIdx === currentIdx) {
+                                if (r[3].startsWith("01/")) h1 += parseFloat(r[7]); else h2 += parseFloat(r[7]);
                             }
                         }
                     });
-                    
-                    let cTotal = c1 + c2, gTotal = p + cTotal;
-                    html += `<tr><td>${headObj.head}</td><td>${comp}</td><td class="num">${p.toFixed(2)}</td><td class="num">${c1.toFixed(2)}</td><td class="num">${c2.toFixed(2)}</td><td class="num">${cTotal.toFixed(2)}</td><td class="num">${gTotal.toFixed(2)}</td></tr>`;
-                    headPrev+=p; headCur1+=c1; headCur2+=c2; headCurTotal+=cTotal; headGrandTotal+=gTotal;
-                });
-                
-                html += `<tr class="subtotal-row"><td colspan="2">Head ${headObj.head} Subtotal</td><td class="num">${headPrev.toFixed(2)}</td><td class="num">${headCur1.toFixed(2)}</td><td class="num">${headCur2.toFixed(2)}</td><td class="num">${headCurTotal.toFixed(2)}</td><td class="num">${headGrandTotal.toFixed(2)}</td></tr>`;
-                gPrev+=headPrev; gCur1+=headCur1; gCur2+=headCur2; gCurTotal+=headCurTotal; gGrandTotal+=headGrandTotal;
+                    let mTotal = h1 + h2; let rTotal = p + mTotal;
+                    html += renderRow(h, p, h1, h2, mTotal, rTotal, "");
+                    sPrev += p; sH1 += h1; sH2 += h2; sMonth += mTotal; sTotal += rTotal;
+                    gPrev += p; gH1 += h1; gH2 += h2; gMonth += mTotal; gTotal += rTotal;
+                }
+                if (index === heads.length - 1) html += renderRow("Sub Total", sPrev, sH1, sH2, sMonth, sTotal, "subtotal-row");
             });
-            
-            html += `<tr class="grand-total-row"><td colspan="2">GRAND TOTAL</td><td class="num">${gPrev.toFixed(2)}</td><td class="num">${gCur1.toFixed(2)}</td><td class="num">${gCur2.toFixed(2)}</td><td class="num">${gCurTotal.toFixed(2)}</td><td class="num">${gGrandTotal.toFixed(2)}</td></tr>`;
-            
+            html += renderRow("TOTAL", gPrev, gH1, gH2, gMonth, gTotal, "grand-total-row");
             table.innerHTML = html + "</tbody>";
-            document.getElementById('report-period-text').innerText = `Period: ${document.getElementById('rep-month').options[selMonth-0].text} (FY ${fy})`;
-        } catch(e) { console.error("Report error:", e); table.innerHTML = "<tr><td colspan='7'>Error loading data.</td></tr>"; }
+            document.getElementById('report-period-text').innerText = `Month: ${document.getElementById('rep-month').options[selMonth-0].text} (FY ${fy})`;
+        } catch(e) { table.innerHTML = "Error Fetching Data."; }
+    }
+
+    function renderRow(label, col1, col2, col3, colMonth, colTotal, css) {
+        return `<tr class="${css}"><td>${label}</td><td class="num">${col1.toFixed(2)}</td><td class="num">${col2.toFixed(2)}</td><td class="num">${col3.toFixed(2)}</td><td class="num">${colMonth.toFixed(2)}</td><td class="num">${colTotal.toFixed(2)}</td></tr>`;
     }
 
     function showView(v) {
@@ -347,82 +292,15 @@
         document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
         document.getElementById('view-'+v).style.display='block';
         document.getElementById('nav-'+v).classList.add('active');
-        
-        if(v==='settings') {
-            document.getElementById('set-offices').value = offices.join("\n");
-            renderHeadsText();
-        }
-    }
-
-    function renderHeadsText() {
-        let text = "";
-        headsData.forEach(headObj => {
-            text += `#${headObj.head}\n`;
-            headObj.components.forEach(comp => {
-                text += `${comp}\n`;
-            });
-        });
-        document.getElementById('set-heads').value = text;
-    }
-
-    function parseHeadsFromText(text) {
-        const lines = text.split("\n").map(l => l.trim()).filter(l => l);
-        const newHeads = [];
-        let currentHead = null;
-
-        lines.forEach(line => {
-            if(line.startsWith("#")) {
-                // This is a head code
-                if(currentHead) {
-                    newHeads.push(currentHead);
-                }
-                currentHead = {
-                    head: line.substring(1),  // Remove the # symbol
-                    components: []
-                };
-            } else if(currentHead) {
-                // This is a component
-                currentHead.components.push(line);
-            }
-        });
-
-        // Don't forget the last head
-        if(currentHead && currentHead.components.length > 0) {
-            newHeads.push(currentHead);
-        }
-
-        return newHeads;
+        if(v === 'settings') { document.getElementById('set-offices').value = offices.join("\n"); document.getElementById('set-heads').value = heads.join("\n"); }
     }
 
     function saveSettings() {
-        // Collect offices
-        offices = document.getElementById('set-offices').value.split("\n").filter(x => x.trim()).map(x => x.trim().toUpperCase());
-        
-        // Parse heads from text with # symbol
-        const headsText = document.getElementById('set-heads').value;
-        headsData = parseHeadsFromText(headsText);
-        
-        if(offices.length === 0) {
-            alert("Please add at least one office!");
-            return;
-        }
-
-        if(headsData.length === 0) {
-            alert("Please add at least one head with components!\nFormat: Start with #HEAD_CODE, then list components below it");
-            return;
-        }
-
-        // Validate each head has at least one component
-        const allValid = headsData.every(h => h.components.length > 0);
-        if(!allValid) {
-            alert("Each head must have at least one component!");
-            return;
-        }
-        
+        offices = document.getElementById('set-offices').value.split("\n").filter(x => x.trim());
+        heads = document.getElementById('set-heads').value.split("\n").filter(x => x.trim());
         localStorage.setItem('sys_offices', JSON.stringify(offices));
-        localStorage.setItem('sys_heads', JSON.stringify(headsData));
-        alert("✅ Configuration Saved Successfully!"); 
-        location.reload();
+        localStorage.setItem('sys_heads', JSON.stringify(heads));
+        alert("Settings Saved!"); location.reload();
     }
 </script>
 </body>
