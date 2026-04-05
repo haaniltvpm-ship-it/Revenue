@@ -17,12 +17,15 @@
         .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .controls { display: flex; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px; align-items: flex-end; border: 1px solid #cbd5e1; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
-        th, td { border: 1px solid var(--border); padding: 8px; }
+        th, td { border: 1px solid var(--border); padding: 12px; }
         th { background: #f1f5f9; text-align: center; font-weight: 800; }
-        .head-row { background: #e2e8f0; font-weight: 900; }
+        .head-row { background: #e2e8f0; font-weight: 900; color: #1e293b; }
+        .component-row { background: white; }
+        .component-row td:first-child { padding-left: 40px; }
         .subtotal-row { background: #f0fdf4; font-weight: 800; color: #166534; }
+        .subtotal-row td:first-child { padding-left: 40px; }
         .grand-total-row { background: #1e293b; color: white; font-weight: 900; }
-        .num { text-align: right; font-family: 'monospace'; font-weight: 700; }
+        .num { text-align: right; font-family: 'monospace'; font-weight: 700; padding-right: 15px; }
         .entry-row { display: grid; grid-template-columns: 1fr 200px; padding: 10px; border-bottom: 1px solid #f1f5f9; }
         .entry-row-editable { display: grid; grid-template-columns: 1fr 150px 30px 30px; padding: 10px; border-bottom: 1px solid #f1f5f9; gap: 8px; align-items: center; }
         .entry-row-head { background: #e2e8f0; font-weight: 900; padding: 10px; display: grid; grid-template-columns: 1fr 200px; }
@@ -31,12 +34,9 @@
         .btn { padding: 12px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; }
         .btn-primary { background: var(--accent); color: white; }
         .btn-success { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 18px; }
-        .btn-edit { background: #3b82f6; color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
-        .btn-delete { background: var(--danger); color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
         .btn-save { background: var(--success); color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
-        .btn-cancel { background: #6b7280; color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
+        .btn-delete { background: var(--danger); color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
         .error-msg { color: red; font-size: 12px; margin-top: 5px; }
-        .warning-msg { color: #d97706; font-size: 12px; padding: 10px; background: #fef3c7; border-radius: 4px; margin-bottom: 10px; }
         .info-msg { color: #0891b2; font-size: 12px; padding: 10px; background: #ecf0f1; border-radius: 4px; margin-bottom: 10px; }
         @media print { .nav-bar, .controls, .header, .btn, .login-screen { display: none !important; } .container { margin: 0; width: 100%; } }
     </style>
@@ -136,7 +136,7 @@ Timber</pre>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyThV8NBqRryLAJkP-I4MUnOegGBJsOt9pOtVx6-NIpgbHTR9jJ0Gpoo4NnHJAlnEnG/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLFmpMLy-JlBr_bVDevh-LNX5LGP3nHJWKJBJOJ5PGPia2mr0EKsXsESNNhx7wTRtL/exec"; 
     let items = [
         "#0406-01-101-94",
         "Compounding fee-Kottoor",
@@ -181,12 +181,7 @@ Timber</pre>
     function isEditWindowOpen() {
         const today = new Date();
         const day = today.getDate();
-        
-        if(day >= 16) {
-            return true;
-        } else {
-            return day <= 15;
-        }
+        return true;
     }
 
     function getEditWindowEndDate() {
@@ -519,11 +514,13 @@ Timber</pre>
 
             let gPrev = 0, gH1 = 0, gH2 = 0, gMonth = 0, gTotal = 0;
 
-            Object.keys(structure).forEach((head, headIndex) => {
+            Object.keys(structure).forEach((head) => {
                 let hPrev = 0, hH1 = 0, hH2 = 0, hMonth = 0, hTotal = 0;
-                let headHasSubs = false;
+                let headHasData = false;
+                let headRowAdded = false;
 
-                structure[head].forEach((component, compIndex) => {
+                // Process all components under this head
+                structure[head].forEach((component) => {
                     let p = 0, h1 = 0, h2 = 0;
                     
                     raw.slice(1).forEach(r => {
@@ -541,7 +538,7 @@ Timber</pre>
                         const isCorrectComponent = (rComponent === component);
                         
                         if (isCorrectFY && isCorrectOffice && isCorrectHead && isCorrectComponent) {
-                            headHasSubs = true;
+                            headHasData = true;
                             if (rMonth < selMonth) {
                                 p += rAmount;
                             } 
@@ -558,18 +555,39 @@ Timber</pre>
                     let mTotal = h1 + h2;
                     let rTotal = p + mTotal;
                     
-                    html += `<tr><td style="padding-left: 30px;">${component}</td><td class="num">${p.toFixed(2)}</td><td class="num">${h1.toFixed(2)}</td><td class="num">${h2.toFixed(2)}</td><td class="num">${mTotal.toFixed(2)}</td><td class="num">${rTotal.toFixed(2)}</td></tr>`;
+                    // Add Head row only once at the beginning (on first component)
+                    if (headHasData && !headRowAdded) {
+                        html += `<tr class="head-row"><td><strong>${head}</strong></td><td colspan="5"></td></tr>`;
+                        headRowAdded = true;
+                    }
                     
-                    hPrev += p; hH1 += h1; hH2 += h2; hMonth += mTotal; hTotal += rTotal;
+                    // Add component row (only if there's data)
+                    if (p > 0 || h1 > 0 || h2 > 0 || mTotal > 0 || rTotal > 0) {
+                        html += `<tr class="component-row"><td>${component}</td><td class="num">${p.toFixed(2)}</td><td class="num">${h1.toFixed(2)}</td><td class="num">${h2.toFixed(2)}</td><td class="num">${mTotal.toFixed(2)}</td><td class="num">${rTotal.toFixed(2)}</td></tr>`;
+                    }
+                    
+                    hPrev += p; 
+                    hH1 += h1; 
+                    hH2 += h2; 
+                    hMonth += mTotal; 
+                    hTotal += rTotal;
                 });
 
-                if(headHasSubs) {
-                    html += `<tr class="subtotal-row"><td>${head} Sub Total</td><td class="num">${hPrev.toFixed(2)}</td><td class="num">${hH1.toFixed(2)}</td><td class="num">${hH2.toFixed(2)}</td><td class="num">${hMonth.toFixed(2)}</td><td class="num">${hTotal.toFixed(2)}</td></tr>`;
-                    gPrev += hPrev; gH1 += hH1; gH2 += hH2; gMonth += hMonth; gTotal += hTotal;
+                // Add Sub Total row for this head (only if head has data)
+                if(headHasData) {
+                    html += `<tr class="subtotal-row"><td><strong>Sub Total - ${head}</strong></td><td class="num"><strong>${hPrev.toFixed(2)}</strong></td><td class="num"><strong>${hH1.toFixed(2)}</strong></td><td class="num"><strong>${hH2.toFixed(2)}</strong></td><td class="num"><strong>${hMonth.toFixed(2)}</strong></td><td class="num"><strong>${hTotal.toFixed(2)}</strong></td></tr>`;
+                    
+                    gPrev += hPrev; 
+                    gH1 += hH1; 
+                    gH2 += hH2; 
+                    gMonth += hMonth; 
+                    gTotal += hTotal;
                 }
             });
             
-            html += renderRow("GRAND TOTAL", gPrev, gH1, gH2, gMonth, gTotal, "grand-total-row");
+            // Add Grand Total row
+            html += `<tr class="grand-total-row"><td><strong>GRAND TOTAL</strong></td><td class="num"><strong>${gPrev.toFixed(2)}</strong></td><td class="num"><strong>${gH1.toFixed(2)}</strong></td><td class="num"><strong>${gH2.toFixed(2)}</strong></td><td class="num"><strong>${gMonth.toFixed(2)}</strong></td><td class="num"><strong>${gTotal.toFixed(2)}</strong></td></tr>`;
+            
             table.innerHTML = html + "</tbody>";
             
             const monthNames = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
@@ -578,10 +596,6 @@ Timber</pre>
         } catch(e) { 
             table.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Error: " + e.message + "</td></tr>"; 
         }
-    }
-
-    function renderRow(label, col1, col2, col3, colMonth, colTotal, css) {
-        return `<tr class="${css}"><td>${label}</td><td class="num">${col1.toFixed(2)}</td><td class="num">${col2.toFixed(2)}</td><td class="num">${col3.toFixed(2)}</td><td class="num">${colMonth.toFixed(2)}</td><td class="num">${colTotal.toFixed(2)}</td></tr>`;
     }
 
     function showView(v) {
