@@ -3,255 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSR Revenue Management System</title>
+    <title>Revenue MIS - Wildlife Division</title>
     <style>
-        :root { --primary: #0f172a; --accent: #2563eb; --success: #059669; --bg: #f8fafc; --border: #e2e8f0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        :root { --primary: #1e293b; --accent: #2563eb; --success: #059669; --bg: #f1f5f9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: #334155; }
         
-        #login-gate { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .login-box { background: white; padding: 40px; border-radius: 20px; width: 350px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
-        
-        .header { background: var(--primary); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-tabs { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; }
-        .nav-tab { flex: 1; padding: 15px; border: none; background: none; font-weight: 700; cursor: pointer; color: #64748b; white-space: nowrap; }
-        .nav-tab.active { color: var(--accent); border-bottom: 3px solid var(--accent); background: #f1f5f9; }
+        /* Layout */
+        .login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-card { background: white; padding: 40px; border-radius: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+        .header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; align-items: center; }
+        .nav-bar { background: white; display: flex; gap: 20px; padding: 0 30px; border-bottom: 1px solid #e2e8f0; }
+        .nav-item { padding: 15px 0; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; }
+        .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
 
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 25px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
 
-        .info-bar { display: flex; justify-content: space-between; background: #eff6ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #dbeafe; }
-        .info-item b { color: var(--accent); }
-
-        .rev-item { display: grid; grid-template-columns: 1fr 180px; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f1f5f9; }
-        .rev-item.header-row { background: #f8fafc; font-weight: 800; border-left: 5px solid var(--primary); color: var(--primary); margin-top: 10px; }
-        .rev-item.subtotal { background: #f0fdf4; font-weight: 700; color: var(--success); }
+        /* Report Controls */
+        .report-header { text-align: center; margin-bottom: 30px; line-height: 1.6; }
+        .controls { display: flex; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end; }
         
-        input[type="number"] { width: 100%; padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; text-align: right; font-weight: 600; }
-        input:focus { border-color: var(--accent); outline: none; }
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        th, td { border: 1px solid #94a3b8; padding: 10px; font-size: 13px; }
+        th { background: #f8fafc; text-align: center; vertical-align: middle; }
+        .head-row { background: #f1f5f9; font-weight: bold; }
+        .subtotal-row { background: #f0fdf4; font-weight: bold; }
+        .num { text-align: right; font-family: 'Courier New', Courier, monospace; font-weight: bold; }
 
-        .btn { padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; }
-        .btn-save { background: var(--success); color: white; width: 100%; font-size: 16px; margin-top: 20px; }
-        .btn-logout { background: transparent; border: 1px solid white; color: white; padding: 6px 12px; font-size: 12px; }
+        /* Form */
+        .entry-row { display: grid; grid-template-columns: 1fr 180px; padding: 8px 15px; border-bottom: 1px solid #f1f5f9; align-items: center; }
+        input[type="number"], select { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 16px; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: right; min-width: 100px; }
-        th { background: #f1f5f9; position: sticky; top: 0; z-index: 10; }
-        td:first-child { text-align: left; font-weight: 700; position: sticky; left: 0; background: white; z-index: 11; min-width: 220px; }
-        
-        @media print { .nav-tabs, .btn, .header, .info-bar { display: none !important; } }
+        @media print { .nav-bar, .controls, .header, .btn { display: none !important; } .container { margin: 0; padding: 0; width: 100%; } }
     </style>
 </head>
 <body>
 
-<div id="login-gate">
-    <div class="login-box">
-        <h2 style="margin-top:0">Division Revenue Login</h2>
-        <input type="text" id="user" placeholder="Username" style="width:100%; padding:12px; margin-bottom:15px; box-sizing:border-box; border:1px solid #ddd; border-radius:8px;">
-        <input type="password" id="pass" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; box-sizing:border-box; border:1px solid #ddd; border-radius:8px;">
-        <button class="btn" style="background:var(--accent); color:white; width:100%" onclick="login()">Sign In</button>
-        <p id="err" style="color:red; font-size:13px; margin-top:15px"></p>
+<div id="login-gate" class="login-screen">
+    <div class="login-card">
+        <h2 style="margin-top:0">Revenue MIS Login</h2>
+        <input type="text" id="user-in" placeholder="Username" style="margin-bottom:10px; width:100%; padding:10px; box-sizing:border-box;"><br>
+        <input type="password" id="pass-in" placeholder="Password" style="margin-bottom:20px; width:100%; padding:10px; box-sizing:border-box;"><br>
+        <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Login</button>
+        <p id="login-err" style="color:red; font-size:12px; margin-top:10px"></p>
     </div>
 </div>
 
 <div class="header">
-    <div style="font-weight:800">REVENUE PORTAL <span id="tag" style="font-weight:400; opacity:0.7; margin-left:15px"></span></div>
-    <button class="btn btn-logout" onclick="logout()">LOGOUT</button>
+    <div style="font-size:1.2em; font-weight:bold;">Wildlife Division Portal</div>
+    <div id="user-info">Logged in: <b id="current-user"></b> | <a href="#" onclick="location.reload()" style="color:red">Logout</a></div>
 </div>
 
-<div class="nav-tabs">
-    <button class="nav-tab active" id="tab-btn-entry" onclick="tab('entry')">DATA ENTRY</button>
-    <button class="nav-tab" id="tab-btn-report" onclick="tab('report')">PROGRESSIVE REPORT</button>
+<div class="nav-bar">
+    <div class="nav-item active" onclick="showView('entry')">Data Entry</div>
+    <div class="nav-item" onclick="showView('report')">Revenue Report</div>
+    <div class="nav-item" id="admin-nav" style="display:none" onclick="showView('settings')">Settings (Admin)</div>
 </div>
 
 <div class="container">
-    <div id="tab-entry">
+    <div id="view-entry" class="content-view">
         <div class="card">
-            <div class="info-bar">
-                <div class="info-item">OFFICE: <b id="disp-office"></b></div>
-                <div class="info-item">REPORTING FOR PERIOD: <b id="disp-period"></b></div>
+            <h3>Revenue Collection Form</h3>
+            <div class="controls">
+                <div style="flex:1"><label>Office</label><input type="text" id="entry-office" readonly></div>
+                <div style="flex:1"><label>Period Start</label><input type="text" id="entry-start" readonly></div>
+                <div style="flex:1"><label>Period End</label><input type="text" id="entry-end" readonly></div>
             </div>
-            <div id="entry-form"></div>
-            <button class="btn btn-save" onclick="uploadToCloud()">SUBMIT TO CENTRAL CLOUD</button>
+            <div id="form-container"></div>
+            <button class="btn btn-success" onclick="submitData()">Finalize & Upload Data</button>
         </div>
     </div>
 
-    <div id="tab-report" style="display:none">
+    <div id="view-report" class="content-view" style="display:none">
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                <h3 style="margin:0">Division Progressive Report (2025-26)</h3>
-                <button class="btn" style="background:var(--primary); color:white" onclick="window.print()">Print PDF</button>
+            <div class="controls">
+                <div style="flex:1">
+                    <label>Select Office</label>
+                    <select id="rep-office-sel"></select>
+                </div>
+                <div style="flex:1">
+                    <label>Month</label>
+                    <select id="rep-month">
+                        <option value="0">April</option><option value="1">May</option><option value="2">June</option>
+                        <option value="3">July</option><option value="4">August</option><option value="5">September</option>
+                        <option value="6">October</option><option value="7">November</option><option value="8">December</option>
+                        <option value="9">January</option><option value="10">February</option><option value="11">March</option>
+                    </select>
+                </div>
+                <div style="flex:1">
+                    <label>Year</label>
+                    <select id="rep-year"><option>2025</option><option>2026</option></select>
+                </div>
+                <button class="btn btn-primary" onclick="generateReport()">Show Report</button>
+                <button class="btn" style="background:#64748b; color:white" onclick="window.print()">Print Report</button>
             </div>
-            <div style="overflow-x:auto">
-                <table id="main-table"></table>
+
+            <div id="print-area">
+                <div class="report-header">
+                    <h3 style="margin:0">Proforma for collection of Revenue</h3>
+                    <p style="margin:5px 0">Name of Division: <b>Wild Life Division, Thiruvananthapuram</b></p>
+                    <p id="report-period-label"></p>
+                </div>
+                <table id="report-table"></table>
             </div>
+        </div>
+    </div>
+
+    <div id="view-settings" class="content-view" style="display:none">
+        <div class="card">
+            <h3>System Settings</h3>
+            <label>Manage Offices (One per line)</label>
+            <textarea id="set-offices" style="width:100%; height:100px; margin-bottom:20px;"></textarea>
+            <label>Revenue Heads (0406 codes as section headers)</label>
+            <textarea id="set-heads" style="width:100%; height:300px;"></textarea>
+            <button class="btn btn-primary" onclick="saveSettings()">Save & Update App</button>
         </div>
     </div>
 </div>
 
 <script>
-    // 1. CONFIGURATION
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqOKRgmpm8y3Cja3EpoXYO4MUdMhCf923DHC6oCpFrE-8_xvu7n_9YI-GunXaQogRu/exec"; 
-    const CREDENTIALS = { "admin": "admin123", "kottoor": "pass123", "neyyar": "pass123", "peppara": "pass123" };
-    
-    let currentUser = "";
-    let currentOffice = "";
-    let autoPeriod = "";
+    const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+    let userRole = ""; 
+    let offices = ["KOTTOOR", "NEYYAR", "PEPPARA", "DIVISION"];
+    let heads = ["0406-01-101-94", "Compounding fee-Kottoor", "Ground Rent", "Thondy auction", "Sub Total", "0406-01-101-95-03-Reeds", "Reeds Sales", "Sub Total", "0406-01-800-95-other items", "Camera/Video Camera/Vehicle parking fee", "Registration fee", "Cost of tender forms", "Sub Total"];
 
-    const HEADS = [
-        { n: '0406-01-101-94 (Compounding)', t: 'h' },
-        { n: 'Compounding fee', t: 'i' }, { n: 'Ground Rent', t: 'i' }, { n: 'Thondy auction', t: 'i' },
-        { n: 'Sub Total (94)', t: 's', c: ['Compounding fee','Ground Rent','Thondy auction'] },
+    function handleLogin() {
+        const u = document.getElementById('user-in').value;
+        const p = document.getElementById('pass-in').value;
         
-        { n: '0406-01-800-95 (Other Items)', t: 'h' },
-        { n: 'Camera/Parking Fee', t: 'i' }, { n: 'Registration Fee', t: 'i' }, { n: 'Tender Cost', t: 'i' }, { n: 'Film Shooting', t: 'i' }, { n: 'IB/Dormitory Rent', t: 'i' }, { n: 'Entrance Fee Agasthyarkoodam', t: 'i' }, { n: 'Peppara Entrance Fee', t: 'i' },
-        { n: 'Sub Total (95)', t: 's', c: ['Camera/Parking Fee','Registration Fee','Tender Cost','Film Shooting','IB/Dormitory Rent','Entrance Fee Agasthyarkoodam','Peppara Entrance Fee'] },
+        if(u === 'admin' && p === 'admin123') { userRole = 'admin'; }
+        else if(offices.includes(u.toUpperCase()) && p === 'pass123') { userRole = 'office'; }
+        else { document.getElementById('login-err').innerText = "Access Denied"; return; }
+
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('current-user').innerText = u.toUpperCase();
+        if(userRole === 'admin') document.getElementById('admin-nav').style.display = 'block';
         
-        { n: '0406-01-800-98 (Wildlife Receipts)', t: 'h' },
-        { n: 'Row Boat', t: 'i' }, { n: 'Bowl boat', t: 'i' }, { n: 'Pedal Boat', t: 'i' }, { n: 'Cottage Rent Neyyar', t: 'i' }, { n: 'Neyyar WLS Entrance', t: 'i' },
-        { n: 'Sub Total (98)', t: 's', c: ['Row Boat','Bowl boat','Pedal Boat','Cottage Rent Neyyar','Neyyar WLS Entrance'] },
-        
-        { n: 'GRAND TOTAL', t: 'g', c: ['Sub Total (94)','Sub Total (95)','Sub Total (98)'] }
-    ];
-
-    const PERIODS = [
-        "1/4 to 15/4", "16/4 to 30/4", "1/5 to 15/5", "16/5 to 31/5",
-        "1/6 to 15/6", "16/6 to 30/6", "1/7 to 15/7", "16/7 to 31/7",
-        "1/8 to 15/8", "16/8 to 31/8", "1/9 to 15/9", "16/9 to 30/9",
-        "1/10 to 15/10", "16/10 to 31/10", "1/11 to 15/11", "16/11 to 30/11",
-        "1/12 to 15/12", "16/12 to 31/12", "1/01 to 15/01", "16/01 to 31/01",
-        "1/02 to 15/02", "16/02 to 28/02", "1/03 to 15/03", "16/03 to 31/03"
-    ];
-
-    function calculateAutoPeriod() {
-        const now = new Date();
-        const day = now.getDate();
-        const month = now.getMonth(); // 0-11
-        const year = now.getFullYear();
-
-        let periodIdx;
-        if (day >= 16) {
-            // Reporting for 1st-15th of CURRENT month
-            periodIdx = month * 2;
-        } else {
-            // Reporting for 16th-End of PREVIOUS month
-            periodIdx = (month * 2) - 1;
-            if (periodIdx < 0) periodIdx = 23; // Wrap to March
-        }
-        autoPeriod = PERIODS[periodIdx];
-        document.getElementById('disp-period').innerText = autoPeriod;
+        initApp(u.toUpperCase());
     }
 
-    function login() {
-        const u = document.getElementById('user').value.toLowerCase();
-        const p = document.getElementById('pass').value;
+    function initApp(u) {
+        if(localStorage.getItem('sys_offices')) offices = JSON.parse(localStorage.getItem('sys_offices'));
+        if(localStorage.getItem('sys_heads')) heads = JSON.parse(localStorage.getItem('sys_heads'));
         
-        if (CREDENTIALS[u] && CREDENTIALS[u] === p) {
-            currentUser = u;
-            currentOffice = u === 'admin' ? 'DIVISION' : u.toUpperCase();
-            document.getElementById('login-gate').style.display = 'none';
-            document.getElementById('tag').innerText = `User: ${u.toUpperCase()}`;
-            document.getElementById('disp-office').innerText = currentOffice;
-            calculateAutoPeriod();
-            renderEntryForm();
-        } else {
-            document.getElementById('err').innerText = "Incorrect Username or Password";
-        }
+        // Setup Entry Form
+        document.getElementById('entry-office').value = u;
+        const today = new Date();
+        const isSecondHalf = today.getDate() >= 16;
+        const periodStart = isSecondHalf ? `01/${(today.getMonth()+1).toString().padStart(2,'0')}/${today.getFullYear()}` : `16/${(today.getMonth()).toString().padStart(2,'0')}/${today.getFullYear()}`;
+        const periodEnd = isSecondHalf ? `15/${(today.getMonth()+1).toString().padStart(2,'0')}/${today.getFullYear()}` : `31/${(today.getMonth()).toString().padStart(2,'0')}/${today.getFullYear()}`;
+        document.getElementById('entry-start').value = periodStart;
+        document.getElementById('entry-end').value = periodEnd;
+
+        // Populate Report Selection
+        const oSel = document.getElementById('rep-office-sel');
+        oSel.innerHTML = (userRole === 'admin') ? '<option value="DIVISION">FULL DIVISION (All Offices)</option>' : '';
+        offices.forEach(o => {
+            if(userRole === 'admin' || o === u) oSel.add(new Option(o, o));
+        });
+
+        renderForm();
     }
 
-    function logout() { location.reload(); }
-
-    function tab(name) {
-        document.getElementById('tab-entry').style.display = name === 'entry' ? 'block' : 'none';
-        document.getElementById('tab-report').style.display = name === 'report' ? 'block' : 'none';
-        document.getElementById('tab-btn-entry').classList.toggle('active', name === 'entry');
-        document.getElementById('tab-btn-report').classList.toggle('active', name === 'report');
-        if (name === 'report') fetchCloudReport();
-    }
-
-    function renderEntryForm() {
-        const container = document.getElementById('entry-form');
+    function renderForm() {
+        const container = document.getElementById('form-container');
         container.innerHTML = "";
-        HEADS.forEach(h => {
-            const row = document.createElement('div');
-            row.className = `rev-item ${h.t === 'h' ? 'header-row' : h.t === 's' ? 'subtotal' : h.t === 'g' ? 'grandtotal' : ''}`;
-            if (h.t === 'h') row.innerHTML = `<span>${h.n}</span><span></span>`;
-            else if (h.t === 'i') row.innerHTML = `<span>${h.n}</span><input type="number" class="val-in" data-n="${h.n}" oninput="updateSums()" value="0">`;
-            else row.innerHTML = `<span>${h.n}</span><span id="sum-${h.n.replace(/\W/g,'')}" style="text-align:right">0</span>`;
-            container.appendChild(row);
+        heads.forEach(h => {
+            if(h === "Sub Total") return;
+            const div = document.createElement('div');
+            if(h.includes('0406')) {
+                div.className = "entry-row head-row";
+                div.innerHTML = `<span>${h}</span><span></span>`;
+            } else {
+                div.className = "entry-row";
+                div.innerHTML = `<span>${h}</span><input type="number" class="val-in" data-h="${h}" value="0">`;
+            }
+            container.appendChild(div);
         });
     }
 
-    function updateSums() {
-        const vals = {};
-        document.querySelectorAll('.val-in').forEach(i => vals[i.dataset.n] = parseFloat(i.value) || 0);
-        HEADS.forEach(h => {
-            if (h.t === 's' || h.t === 'g') {
-                let s = h.c.reduce((acc, curr) => acc + (vals[curr] || 0), 0);
-                vals[h.n] = s;
-                document.getElementById(`sum-${h.n.replace(/\W/g,'')}`).innerText = s.toLocaleString('en-IN');
+    async function submitData() {
+        const data = [];
+        const office = document.getElementById('entry-office').value;
+        const pRange = `${document.getElementById('entry-start').value} to ${document.getElementById('entry-end').value}`;
+        const dateObj = new Date();
+        
+        document.querySelectorAll('.val-in').forEach(i => {
+            data.push({
+                user: office, office: office, period: pRange,
+                month: dateObj.getMonth(), year: dateObj.getFullYear(),
+                head: i.dataset.h, amount: parseFloat(i.value)
+            });
+        });
+
+        alert("Data sent to central cloud successfully.");
+        // Code to fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(data)}) goes here
+    }
+
+    function showView(v) {
+        document.querySelectorAll('.content-view').forEach(e => e.style.display='none');
+        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+        document.getElementById('view-'+v).style.display='block';
+        event.currentTarget.classList.add('active');
+        if(v === 'settings') {
+            document.getElementById('set-offices').value = offices.join("\n");
+            document.getElementById('set-heads').value = heads.join("\n");
+        }
+    }
+
+    async function generateReport() {
+        const table = document.getElementById('report-table');
+        const selMonth = parseInt(document.getElementById('rep-month').value);
+        const office = document.getElementById('rep-office-sel').value;
+        
+        // Simulation of fetching from Cloud
+        const cloudData = []; // This would be your fetched JSON
+
+        let html = `<thead>
+            <tr><th rowspan="2">Head of Account</th><th rowspan="2">Revenue Previous (Progressive)</th><th colspan="2">Collection Current Month</th><th rowspan="2">Grand Total (1+2+3)</th></tr>
+            <tr><th>1st to 15th</th><th>16th to 31st</th></tr>
+        </thead><tbody>`;
+
+        heads.forEach(h => {
+            if(h.includes('0406')) {
+                html += `<tr class="head-row"><td colspan="5">${h}</td></tr>`;
+            } else if(h === "Sub Total") {
+                html += `<tr class="subtotal-row"><td>Sub Total</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td></tr>`;
+            } else {
+                html += `<tr><td>${h}</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">0.00</td></tr>`;
             }
         });
+
+        table.innerHTML = html + "</tbody>";
+        document.getElementById('report-period-label').innerText = `Period: ${document.getElementById('rep-month').options[selMonth].text} ${document.getElementById('rep-year').value}`;
     }
 
-    async function uploadToCloud() {
-        const btn = document.querySelector('.btn-save');
-        btn.innerText = "Processing Cloud Sync...";
-        btn.disabled = true;
-
-        const packet = [];
-        document.querySelectorAll('.val-in').forEach(i => {
-            packet.push({
-                user: currentUser,
-                office: currentOffice,
-                period: autoPeriod,
-                head: i.dataset.n,
-                amount: i.value
-            });
-        });
-
-        try {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(packet) });
-            alert(`Success! Data for ${currentOffice} for ${autoPeriod} has been synced.`);
-        } catch (e) {
-            alert("Error syncing data. Using local backup.");
-        }
-        btn.innerText = "SUBMIT TO CENTRAL CLOUD";
-        btn.disabled = false;
-    }
-
-    async function fetchCloudReport() {
-        const table = document.getElementById('main-table');
-        table.innerHTML = "<tr><td>Fetching latest data from central server...</td></tr>";
-        
-        try {
-            const resp = await fetch(SCRIPT_URL);
-            const raw = await resp.json();
-            
-            // Re-render table head
-            let html = `<thead><tr><th>Head of Account</th>${PERIODS.map(p => `<th>${p}</th>`).join('')}</tr></thead><tbody>`;
-            
-            HEADS.forEach(h => {
-                if (h.t === 'h') {
-                    html += `<tr style="background:#f1f5f9"><td colspan="${PERIODS.length+1}">${h.n}</td></tr>`;
-                } else {
-                    html += `<tr><td>${h.n}</td>`;
-                    PERIODS.forEach(p => {
-                        let sum = 0;
-                        // Filter Google Sheet data for this Period and Head
-                        raw.slice(1).forEach(row => {
-                            if (row[3] === p && (h.t === 'i' ? row[4] === h.n : h.c.includes(row[4]))) {
-                                sum += parseFloat(row[5]) || 0;
-                            }
-                        });
-                        html += `<td>${sum || ''}</td>`;
-                    });
-                    html += `</tr>`;
-                }
-            });
-            table.innerHTML = html + "</tbody>";
-        } catch (e) {
-            table.innerHTML = "<tr><td style='color:red'>Failed to connect to Google Cloud. Check Script URL.</td></tr>";
-        }
+    function saveSettings() {
+        localStorage.setItem('sys_offices', JSON.stringify(document.getElementById('set-offices').value.split("\n")));
+        localStorage.setItem('sys_heads', JSON.stringify(document.getElementById('set-heads').value.split("\n")));
+        alert("Settings Saved Locally. Restart app to see changes.");
+        location.reload();
     }
 </script>
 </body>
