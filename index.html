@@ -2,71 +2,617 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>RMS - Revenue Management System (Non Tax Revenue)</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root { --primary: #0f172a; --accent: #2563eb; --success: #059669; --danger: #dc2626; --bg: #f1f5f9; --border: #475569; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
-        .login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .login-card { background: white; padding: 40px; border-radius: 16px; width: 340px; text-align: center; }
-        .header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; align-items: center; }
-        .header-left { display: flex; flex-direction: column; }
-        .header-title { font-weight: 900; font-size: 18px; color: var(--primary); }
-        .header-subtitle { font-size: 12px; color: #64748b; margin-top: 2px; }
-        .header-credit { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 4px; }
-        .nav-bar { background: white; display: flex; gap: 25px; padding: 0 30px; border-bottom: 1px solid #cbd5e1; }
-        .nav-item { padding: 15px 0; cursor: pointer; font-weight: 700; color: #64748b; border-bottom: 3px solid transparent; }
-        .nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
-        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
-        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .controls { display: flex; gap: 15px; background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px; align-items: flex-end; border: 1px solid #cbd5e1; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; font-size: 13px; }
-        th, td { border: 1px solid var(--border); padding: 12px; }
-        th { background: #f1f5f9; text-align: center; font-weight: 800; }
-        .head-row { background: #e2e8f0; font-weight: 900; color: #1e293b; }
-        .component-row { background: white; }
-        .component-row td:first-child { padding-left: 40px; }
-        .subtotal-row { background: #f0fdf4; font-weight: 800; color: #166534; }
-        .subtotal-row td:first-child { padding-left: 40px; }
-        .grand-total-row { background: #1e293b; color: white; font-weight: 900; }
-        .num { text-align: right; font-family: 'monospace'; font-weight: 700; padding-right: 15px; }
-        .entry-row { display: grid; grid-template-columns: 1fr 200px; padding: 10px; border-bottom: 1px solid #f1f5f9; }
-        .entry-row-editable { display: grid; grid-template-columns: 1fr 150px 30px 30px; padding: 10px; border-bottom: 1px solid #f1f5f9; gap: 8px; align-items: center; }
-        .entry-row-head { background: #e2e8f0; font-weight: 900; padding: 10px; display: grid; grid-template-columns: 1fr 200px; }
-        input[readonly] { background-color: #e2e8f0; cursor: not-allowed; font-weight: bold; }
-        input[type="number"], select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; }
-        .btn { padding: 12px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-success { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 18px; }
-        .btn-save { background: var(--success); color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
-        .btn-delete { background: var(--danger); color: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
-        .error-msg { color: red; font-size: 12px; margin-top: 5px; }
-        .info-msg { color: #0891b2; font-size: 12px; padding: 10px; background: #ecf0f1; border-radius: 4px; margin-bottom: 10px; }
-        .report-header { text-align: center; margin-bottom: 20px; }
-        .report-title { font-size: 16px; font-weight: 900; color: var(--primary); }
-        .report-division { font-size: 14px; font-weight: 700; color: var(--accent); margin-top: 5px; }
-        .report-period { font-size: 12px; font-weight: 600; color: #475569; margin-top: 5px; }
-        .footer { text-align: center; padding: 15px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; margin-top: 20px; font-style: italic; }
-        @media print { .nav-bar, .controls, .header, .btn, .login-screen, .footer { display: none !important; } .container { margin: 0; width: 100%; } }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            color: #1e293b;
+            font-size: 14px;
+        }
+        
+        .login-screen { 
+            position: fixed; 
+            inset: 0; 
+            background: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .login-card { 
+            background: white; 
+            padding: 30px 20px; 
+            border-radius: 16px; 
+            width: 100%;
+            max-width: 340px; 
+            text-align: center; 
+        }
+        
+        .login-card h2 { 
+            color: var(--primary); 
+            margin-bottom: 5px; 
+            font-size: 24px;
+        }
+        
+        .login-card p { 
+            color: #64748b; 
+            font-size: 12px; 
+            margin: 0 0 20px;
+        }
+        
+        .login-card input { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 10px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .login-card input:last-of-type { 
+            margin-bottom: 20px; 
+        }
+        
+        .login-card button { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .login-card #login-err { 
+            color: red; 
+            margin-top: 10px; 
+            font-size: 12px;
+        }
+        
+        .login-card .credit { 
+            font-size: 11px; 
+            color: #94a3b8; 
+            margin-top: 15px; 
+            font-style: italic;
+        }
+        
+        .header { 
+            background: white; 
+            padding: 12px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0; 
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .header-left { 
+            display: flex; 
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .header-title { 
+            font-weight: 900; 
+            font-size: 14px;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+        
+        .header-subtitle { 
+            font-size: 11px; 
+            color: #64748b; 
+            margin-top: 2px;
+        }
+        
+        .header-credit { 
+            font-size: 10px; 
+            color: #94a3b8; 
+            font-style: italic; 
+            margin-top: 2px;
+        }
+        
+        #user-info { 
+            font-size: 12px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #user-info button { 
+            padding: 6px 12px; 
+            background: #e2e8f0; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 4px; 
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .nav-bar { 
+            background: white; 
+            display: flex; 
+            gap: 10px; 
+            padding: 0 10px; 
+            border-bottom: 1px solid #cbd5e1;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .nav-item { 
+            padding: 12px 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            color: #64748b; 
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+        
+        .nav-item.active { 
+            color: var(--accent); 
+            border-bottom-color: var(--accent); 
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 10px auto; 
+            padding: 0 10px;
+        }
+        
+        .card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 15px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            margin-bottom: 15px;
+        }
+        
+        .card h3 { 
+            margin: 0 0 12px; 
+            font-size: 16px;
+        }
+        
+        .controls { 
+            display: flex; 
+            flex-direction: column;
+            gap: 10px; 
+            background: #f8fafc; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            border: 1px solid #cbd5e1;
+        }
+        
+        .controls > div { 
+            display: flex; 
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .controls label { 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: #475569;
+        }
+        
+        .controls input, 
+        .controls select { 
+            padding: 8px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 4px; 
+            font-size: 12px;
+            width: 100%;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            background: white; 
+            font-size: 11px;
+            overflow-x: auto;
+        }
+        
+        th, td { 
+            border: 1px solid var(--border); 
+            padding: 8px; 
+        }
+        
+        th { 
+            background: #f1f5f9; 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 10px;
+        }
+        
+        .head-row { 
+            background: #e2e8f0; 
+            font-weight: 900; 
+            color: #1e293b; 
+        }
+        
+        .component-row { 
+            background: white; 
+        }
+        
+        .component-row td:first-child { 
+            padding-left: 20px; 
+        }
+        
+        .subtotal-row { 
+            background: #f0fdf4; 
+            font-weight: 800; 
+            color: #166534; 
+        }
+        
+        .subtotal-row td:first-child { 
+            padding-left: 20px; 
+        }
+        
+        .grand-total-row { 
+            background: #1e293b; 
+            color: white; 
+            font-weight: 900; 
+        }
+        
+        .num { 
+            text-align: right; 
+            font-family: 'monospace'; 
+            font-weight: 700; 
+        }
+        
+        .entry-row { 
+            display: grid; 
+            grid-template-columns: 1fr 100px; 
+            gap: 10px;
+            padding: 8px; 
+            border-bottom: 1px solid #f1f5f9;
+            align-items: center;
+        }
+        
+        .entry-row-editable { 
+            display: grid; 
+            grid-template-columns: 1fr 80px 25px 25px; 
+            gap: 5px;
+            padding: 8px; 
+            border-bottom: 1px solid #f1f5f9;
+            align-items: center;
+        }
+        
+        .entry-row-head { 
+            background: #e2e8f0; 
+            font-weight: 900; 
+            padding: 8px; 
+            display: grid; 
+            grid-template-columns: 1fr 100px;
+            gap: 10px;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        input[readonly] { 
+            background-color: #e2e8f0; 
+            cursor: not-allowed; 
+            font-weight: bold; 
+        }
+        
+        input[type="number"], select { 
+            padding: 8px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 4px; 
+            width: 100%;
+            font-size: 12px;
+        }
+        
+        .btn { 
+            padding: 10px 16px; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            border: none; 
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .btn-primary { 
+            background: var(--accent); 
+            color: white; 
+        }
+        
+        .btn-success { 
+            background: var(--success); 
+            color: white; 
+            width: 100%; 
+            margin-top: 15px; 
+            font-size: 14px;
+            padding: 12px;
+        }
+        
+        .btn-save { 
+            background: var(--success); 
+            color: white; 
+            padding: 4px 6px; 
+            font-size: 10px; 
+            border-radius: 3px; 
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-delete { 
+            background: var(--danger); 
+            color: white; 
+            padding: 4px 6px; 
+            font-size: 10px; 
+            border-radius: 3px; 
+            cursor: pointer;
+            border: none;
+        }
+        
+        .error-msg { 
+            color: red; 
+            font-size: 11px; 
+            margin-top: 5px; 
+        }
+        
+        .info-msg { 
+            color: #0891b2; 
+            font-size: 11px; 
+            padding: 8px; 
+            background: #ecf0f1; 
+            border-radius: 4px; 
+            margin-bottom: 10px; 
+        }
+        
+        .report-header { 
+            text-align: center; 
+            margin-bottom: 15px; 
+        }
+        
+        .report-title { 
+            font-size: 14px; 
+            font-weight: 900; 
+            color: var(--primary);
+            line-height: 1.3;
+        }
+        
+        .report-division { 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--accent); 
+            margin-top: 5px;
+        }
+        
+        .report-period { 
+            font-size: 11px; 
+            font-weight: 600; 
+            color: #475569; 
+            margin-top: 5px;
+        }
+        
+        .footer { 
+            text-align: center; 
+            padding: 10px; 
+            font-size: 10px; 
+            color: #94a3b8; 
+            border-top: 1px solid #e2e8f0; 
+            margin-top: 15px; 
+            font-style: italic; 
+        }
+        
+        #success-msg { 
+            padding: 15px; 
+            background: #dcfce7; 
+            border: 1px solid #166534; 
+            border-radius: 6px; 
+            margin-top: 15px; 
+            text-align: center;
+        }
+        
+        #success-msg h4 { 
+            color: #166534; 
+            margin: 0 0 5px;
+            font-size: 14px;
+        }
+        
+        #success-msg p { 
+            margin: 0;
+            font-size: 12px;
+        }
+        
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            .header { 
+                flex-direction: column; 
+                align-items: flex-start;
+                padding: 10px;
+            }
+            
+            .header-title { 
+                font-size: 12px; 
+            }
+            
+            #user-info { 
+                width: 100%;
+                font-size: 11px;
+            }
+            
+            .nav-bar { 
+                gap: 5px;
+                padding: 0 5px;
+            }
+            
+            .nav-item { 
+                padding: 10px 6px;
+                font-size: 11px;
+            }
+            
+            .entry-row { 
+                grid-template-columns: 1fr 80px;
+                gap: 8px;
+            }
+            
+            .entry-row-editable { 
+                grid-template-columns: 1fr 70px 20px 20px;
+                gap: 4px;
+            }
+            
+            .entry-row-head { 
+                grid-template-columns: 1fr 80px;
+                gap: 8px;
+                font-size: 11px;
+            }
+            
+            .controls { 
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            table { 
+                font-size: 10px;
+            }
+            
+            th, td { 
+                padding: 6px;
+                font-size: 9px;
+            }
+            
+            .btn { 
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body { 
+                font-size: 12px;
+            }
+            
+            .login-card { 
+                padding: 20px 15px;
+            }
+            
+            .header { 
+                padding: 8px;
+                gap: 8px;
+            }
+            
+            .header-title { 
+                font-size: 11px;
+            }
+            
+            .card { 
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .card h3 { 
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .controls { 
+                padding: 10px;
+                gap: 8px;
+            }
+            
+            .entry-row { 
+                grid-template-columns: 1fr 70px;
+                gap: 8px;
+                padding: 6px;
+            }
+            
+            .entry-row-editable { 
+                grid-template-columns: 1fr 60px 18px 18px;
+                gap: 3px;
+                padding: 6px;
+            }
+            
+            .entry-row-head { 
+                grid-template-columns: 1fr 70px;
+                gap: 8px;
+                font-size: 10px;
+            }
+            
+            input[type="number"], 
+            select { 
+                padding: 6px;
+                font-size: 11px;
+            }
+            
+            .btn { 
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+            
+            .btn-success { 
+                padding: 10px;
+                font-size: 12px;
+            }
+            
+            table { 
+                font-size: 9px;
+            }
+            
+            th, td { 
+                padding: 4px;
+                font-size: 8px;
+            }
+            
+            .btn-save, 
+            .btn-delete { 
+                padding: 3px 5px;
+                font-size: 8px;
+            }
+            
+            .component-row td:first-child, 
+            .subtotal-row td:first-child { 
+                padding-left: 15px;
+            }
+        }
+        
+        @media print { 
+            .nav-bar, .controls, .header, .btn, .login-screen, .footer { 
+                display: none !important; 
+            } 
+            .container { 
+                margin: 0; 
+                width: 100%; 
+            } 
+            table { 
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div id="login-gate" class="login-screen">
     <div class="login-card">
-        <h2 style="color: var(--primary); margin-bottom: 5px;">RMS</h2>
-        <p style="color: #64748b; font-size: 12px; margin: 0 0 20px;">Revenue Management System</p>
-        <input type="text" id="user-in" placeholder="Username" style="margin-bottom:10px; width:100%; padding:10px;">
-        <input type="password" id="pass-in" placeholder="Password" style="margin-bottom:20px; width:100%; padding:10px;">
-        <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Login</button>
-        <p id="login-err" style="color:red; margin-top:10px"></p>
-        <p style="font-size: 11px; color: #94a3b8; margin-top: 15px; font-style: italic;">By Anil AV, Irumpupalam</p>
+        <h2>RMS</h2>
+        <p>Revenue Management System</p>
+        <input type="text" id="user-in" placeholder="Username">
+        <input type="password" id="pass-in" placeholder="Password">
+        <button onclick="handleLogin()">Login</button>
+        <p id="login-err"></p>
+        <p class="credit">By Anil AV, Irumpupalam</p>
     </div>
 </div>
 
 <div class="header">
     <div class="header-left">
-        <div class="header-title">RMS - Revenue Management System (Non Tax Revenue)</div>
+        <div class="header-title">RMS - Revenue Management System</div>
         <div class="header-subtitle" id="division-display">Division Name</div>
         <div class="header-credit">By Anil AV, Irumpupalam</div>
     </div>
@@ -75,40 +621,40 @@
 
 <div class="nav-bar">
     <div class="nav-item active" id="nav-entry" onclick="showView('entry')">DATA ENTRY</div>
-    <div class="nav-item" id="nav-report" onclick="showView('report')">REVENUE REPORT</div>
-    <div class="nav-item" id="nav-settings" style="display:none" onclick="showView('settings')">ADMIN SETTINGS</div>
+    <div class="nav-item" id="nav-report" onclick="showView('report')">REPORT</div>
+    <div class="nav-item" id="nav-settings" style="display:none" onclick="showView('settings')">SETTINGS</div>
 </div>
 
 <div class="container">
     <div id="view-entry" class="content-view">
         <div class="card">
-            <h3 style="margin:0 0 15px">Monthly Data Entry</h3>
+            <h3>Data Entry</h3>
             <div id="edit-window-msg" class="info-msg" style="display:none;"></div>
             <div class="controls" style="background: #fffbeb;">
-                <div style="flex:1"><label>Entry Date</label><input type="text" id="display-today" readonly></div>
-                <div style="flex:1"><label>Office</label><input type="text" id="entry-office" readonly></div>
-                <div style="flex:2"><label>Reporting Period (Auto-calculated)</label><input type="text" id="entry-period-label" readonly></div>
+                <div><label>Date</label><input type="text" id="display-today" readonly></div>
+                <div><label>Office</label><input type="text" id="entry-office" readonly></div>
+                <div><label>Period</label><input type="text" id="entry-period-label" readonly></div>
             </div>
             <div id="form-container"></div>
-            <div id="success-msg" style="display:none; padding:20px; background:#dcfce7; border:1px solid #166534; border-radius:8px; margin-top:20px; text-align:center;">
-                <h4 style="color:#166534; margin:0">Data Updated Successfully!</h4>
-                <p style="margin:5px 0">Note: You can edit/delete entries until the end of this half-month period. After that, only Admin can modify the data.</p>
+            <div id="success-msg" style="display:none;">
+                <h4>✓ Data Updated Successfully!</h4>
+                <p>You can edit/delete entries until period end.</p>
             </div>
-            <button class="btn btn-success" id="submit-btn" onclick="submitData()">Finalize & Upload</button>
+            <button class="btn btn-success" id="submit-btn" onclick="submitData()">Upload</button>
         </div>
     </div>
 
     <div id="view-report" class="content-view" style="display:none">
         <div class="card">
-            <div class="controls">
-                <div style="flex:1"><label>Financial Year</label>
+            <div class="controls" style="background: #f8fafc;">
+                <div><label>Financial Year</label>
                     <select id="rep-fy">
                         <option value="2025-2026">2025-2026</option>
                         <option value="2026-2027">2026-2027</option>
                     </select>
                 </div>
-                <div style="flex:1"><label>Office</label><select id="rep-office-sel"></select></div>
-                <div style="flex:1"><label>Report Month</label>
+                <div><label>Office</label><select id="rep-office-sel"></select></div>
+                <div><label>Month</label>
                     <select id="rep-month">
                         <option value="0">April</option><option value="1">May</option><option value="2">June</option>
                         <option value="3">July</option><option value="4">August</option><option value="5">September</option>
@@ -116,8 +662,8 @@
                         <option value="9">January</option><option value="10">February</option><option value="11">March</option>
                     </select>
                 </div>
-                <button class="btn btn-primary" onclick="generateReport()">Show Report</button>
-                <button class="btn" style="background:#475569; color:white" onclick="window.print()">Print</button>
+                <button class="btn btn-primary" onclick="generateReport()" style="width: 100%; margin-top: 0;">Report</button>
+                <button class="btn" style="background:#475569; color:white; width: 100%; margin-top: 5px;" onclick="window.print()">Print</button>
             </div>
             <div id="print-area">
                 <div class="report-header">
@@ -126,7 +672,7 @@
                     <div class="report-period" id="report-period-text"></div>
                 </div>
                 <table id="report-table"></table>
-                <div class="footer" style="display: block;">By Anil AV, Irumpupalam</div>
+                <div class="footer">By Anil AV, Irumpupalam</div>
             </div>
         </div>
     </div>
@@ -135,54 +681,40 @@
         <div class="card">
             <h3>Admin Settings</h3>
             <label>Division Name</label>
-            <input type="text" id="set-division" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; margin-bottom:20px;" placeholder="e.g., Wildlife Division, Thiruvananthapuram">
-            <p style="color: #666; font-size: 12px; margin-bottom: 10px;">
-                <strong>Format:</strong> Add # before Head codes to identify them. Components are listed under each Head.
-            </p>
+            <input type="text" id="set-division" placeholder="e.g., Wildlife Division, TVM" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; margin-bottom:15px; font-size:12px;">
+            
             <label>Revenue Heads & Components</label>
-            <textarea id="set-items" style="width:100%; height:400px; font-family: monospace; font-size: 12px;"></textarea>
-            <p style="color: #666; font-size: 11px; margin-top: 5px;">Example:</p>
-            <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 11px;">#0406-01-101-94
-Compounding fee-Kottoor
-Ground Rent
-#0406-01-800-95
-Camera Fee
-Timber</pre>
-            <label>Offices</label><textarea id="set-offices" style="width:100%; height:80px; margin-bottom:15px;"></textarea>
-            <button class="btn btn-primary" onclick="saveSettings()">Save Configuration</button>
+            <textarea id="set-items" style="width:100%; height:250px; font-family: monospace; font-size: 11px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;"></textarea>
+            <p style="color: #666; font-size: 10px; margin-top: 5px;">Format: Use # before Heads</p>
+            
+            <label>Offices</label>
+            <textarea id="set-offices" style="width:100%; height:100px; font-size: 11px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 15px;"></textarea>
+            
+            <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%;">Save</button>
         </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNRY2TjmSH68h4YdPqCd_ixN_OR3hO4rmw0C3sZRckLYbtNp5qiWsnN4078UR5k4KW/exec"; 
-    let items = [
-        "#0406-01-101-94",
-        "Compounding fee-Kottoor",
-        "Ground Rent",
-        "#0406-01-800-95",
-        "Camera Fee"
-    ];
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPSW4cNaTK57kYCr5LYP_aSf8X0caplu1lqr3wfaUQ8gnWxIYgYHZhz0DXGW5LHzM5/exec"; 
+    let items = ["#0406-01-101-94","Compounding fee-Kottoor","Ground Rent","#0406-01-800-95","Camera Fee"];
     let offices = ["KOTTOOR", "NEYYAR", "PEPPARA"];
     let divisionName = "Wildlife Division, Thiruvananthapuram";
     let userRole = "";
     let currentPeriod = {};
     let submittedEntries = {};
 
-    // Parse items into heads and components structure
     function parseItems() {
         let structure = {};
         let currentHead = null;
-        
         items.forEach(item => {
             if(item.startsWith('#')) {
-                currentHead = item.substring(1); // Remove #
+                currentHead = item.substring(1);
                 structure[currentHead] = [];
             } else if(currentHead) {
                 structure[currentHead].push(item);
             }
         });
-        
         return structure;
     }
 
@@ -198,16 +730,9 @@ Timber</pre>
         initApp(u);
     }
 
-    function isEditWindowOpen() {
-        const today = new Date();
-        const day = today.getDate();
-        return true;
-    }
-
     function getEditWindowEndDate() {
         const today = new Date();
         const day = today.getDate();
-        
         if(day >= 16) {
             return new Date(today.getFullYear(), today.getMonth() + 1, 0);
         } else {
@@ -233,31 +758,21 @@ Timber</pre>
             const monthStr = String(jsMonth + 1).padStart(2, '0');
             startD = `01/${monthStr}/${year}`;
             endD = `15/${monthStr}/${year}`;
-            
             rMonth = (jsMonth + 9) % 12;
             rYear = jsMonth >= 3 ? year : year - 1;
             entryHalf = 1;
-            
         } else {
             const prevMonthDate = new Date(year, jsMonth, 0);
             const prevMonthStr = String(jsMonth).padStart(2, '0');
-            
             startD = `16/${prevMonthStr}/${year}`;
             endD = `${prevMonthDate.getDate()}/${prevMonthStr}/${year}`;
-            
             const prevJsMonth = jsMonth === 0 ? 11 : jsMonth - 1;
             rMonth = (prevJsMonth + 9) % 12;
             rYear = prevJsMonth >= 3 ? year : year - 1;
             entryHalf = 2;
         }
 
-        currentPeriod = {
-            startD: startD,
-            endD: endD,
-            month: rMonth,
-            year: rYear,
-            half: entryHalf
-        };
+        currentPeriod = { startD, endD, month: rMonth, year: rYear, half: entryHalf };
 
         document.getElementById('display-today').value = today.toLocaleDateString('en-GB');
         document.getElementById('entry-office').value = u;
@@ -268,11 +783,11 @@ Timber</pre>
 
         const endDate = getEditWindowEndDate();
         const endDateStr = endDate.toLocaleDateString('en-GB');
-        document.getElementById('edit-window-msg').innerHTML = `✏️ <strong>Edit Window:</strong> You can edit/delete entries until ${endDateStr}`;
+        document.getElementById('edit-window-msg').innerHTML = `✏️ Edit until ${endDateStr}`;
         document.getElementById('edit-window-msg').style.display = 'block';
 
         const oSel = document.getElementById('rep-office-sel');
-        oSel.innerHTML = (userRole === 'admin') ? '<option value="DIVISION">DIVISION CONSOLIDATED</option>' : '';
+        oSel.innerHTML = (userRole === 'admin') ? '<option value="DIVISION">CONSOLIDATED</option>' : '';
         offices.forEach(o => { if(userRole === 'admin' || o === u) oSel.add(new Option(o, o)); });
         
         renderForm();
@@ -280,7 +795,7 @@ Timber</pre>
     }
 
     async function loadExistingEntries() {
-        if(userRole === 'office' && isEditWindowOpen()) {
+        if(userRole === 'office') {
             try {
                 const resp = await fetch(SCRIPT_URL);
                 const raw = await resp.json();
@@ -293,22 +808,14 @@ Timber</pre>
                     const rHalf = parseInt(r[8]);
                     const rEntryId = r[9];
                     
-                    if(rOffice === currentOffice && 
-                       rMonth === currentPeriod.month && 
-                       rYear === currentPeriod.year && 
-                       rHalf === currentPeriod.half) {
+                    if(rOffice === currentOffice && rMonth === currentPeriod.month && rYear === currentPeriod.year && rHalf === currentPeriod.half) {
                         const rHead = r[5];
                         const rComponent = r[6];
                         const rAmount = parseFloat(r[7]);
-                        
                         const key = rHead + "||" + rComponent;
-                        submittedEntries[key] = {
-                            id: rEntryId,
-                            amount: rAmount
-                        };
+                        submittedEntries[key] = { id: rEntryId, amount: rAmount };
                     }
                 });
-                
                 updateFormWithExistingEntries();
             } catch(e) {
                 console.log("Could not load existing entries");
@@ -322,17 +829,15 @@ Timber</pre>
         const structure = parseItems();
         
         Object.keys(structure).forEach(head => {
-            // Add head row
             const headDiv = document.createElement('div');
             headDiv.className = "entry-row-head";
             headDiv.innerHTML = `<span>${head}</span><span></span>`;
             container.appendChild(headDiv);
             
-            // Add component rows
             structure[head].forEach(component => {
                 const div = document.createElement('div');
                 div.className = "entry-row";
-                div.innerHTML = `<span style="margin-left: 20px;">${component}</span><input type="number" class="val-in" data-head="${head}" data-comp="${component}" value="0" min="0" step="0.01">`;
+                div.innerHTML = `<span style="margin-left: 10px;">${component}</span><input type="number" class="val-in" data-head="${head}" data-comp="${component}" value="0" min="0" step="0.01">`;
                 container.appendChild(div);
             });
         });
@@ -344,35 +849,27 @@ Timber</pre>
         const structure = parseItems();
         
         Object.keys(structure).forEach(head => {
-            // Add head row
             const headDiv = document.createElement('div');
             headDiv.className = "entry-row-head";
             headDiv.innerHTML = `<span>${head}</span><span></span>`;
             container.appendChild(headDiv);
             
-            // Add component rows
             structure[head].forEach(component => {
                 const key = head + "||" + component;
                 const existing = submittedEntries[key];
                 const div = document.createElement('div');
                 
-                if(existing && isEditWindowOpen()) {
-                    // Editable row
+                if(existing) {
                     div.className = "entry-row-editable";
                     div.innerHTML = `
-                        <span style="margin-left: 20px;">${component}</span>
+                        <span style="margin-left: 10px;">${component}</span>
                         <input type="number" class="val-in" data-head="${head}" data-comp="${component}" data-id="${existing.id}" value="${existing.amount}" min="0" step="0.01">
                         <button class="btn-save" onclick="updateEntry('${existing.id}', this)">✓</button>
                         <button class="btn-delete" onclick="deleteEntry('${existing.id}', this)">✕</button>
                     `;
-                } else if(existing) {
-                    // Locked row (outside edit window)
-                    div.className = "entry-row";
-                    div.innerHTML = `<span style="margin-left: 20px;">${component}</span><input type="number" value="${existing.amount}" readonly style="background-color: #e0e7ff; font-weight: bold;">`;
                 } else {
-                    // New entry
                     div.className = "entry-row";
-                    div.innerHTML = `<span style="margin-left: 20px;">${component}</span><input type="number" class="val-in" data-head="${head}" data-comp="${component}" value="0" min="0" step="0.01">`;
+                    div.innerHTML = `<span style="margin-left: 10px;">${component}</span><input type="number" class="val-in" data-head="${head}" data-comp="${component}" value="0" min="0" step="0.01">`;
                 }
                 container.appendChild(div);
             });
@@ -382,30 +879,18 @@ Timber</pre>
     async function updateEntry(entryId, button) {
         const input = button.parentElement.querySelector('input');
         const newAmount = parseFloat(input.value);
-        
         if(isNaN(newAmount) || newAmount < 0) {
-            alert("Please enter a valid amount");
+            alert("Invalid amount");
             return;
         }
-
-        if(!isEditWindowOpen()) {
-            alert("Edit window has closed. You can no longer modify this entry.");
-            return;
-        }
-
         try {
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({
-                    action: "update",
-                    entryId: entryId,
-                    amount: newAmount
-                })
+                body: JSON.stringify({ action: "update", entryId: entryId, amount: newAmount })
             });
             const result = await response.text();
-            
             if(result === "Updated") {
-                alert("Entry updated successfully!");
+                alert("Updated!");
                 submittedEntries = {};
                 loadExistingEntries();
             } else {
@@ -417,25 +902,15 @@ Timber</pre>
     }
 
     async function deleteEntry(entryId, button) {
-        if(!confirm("Are you sure you want to delete this entry?")) return;
-
-        if(!isEditWindowOpen()) {
-            alert("Edit window has closed. You can no longer delete this entry.");
-            return;
-        }
-
+        if(!confirm("Delete entry?")) return;
         try {
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({
-                    action: "delete",
-                    entryId: entryId
-                })
+                body: JSON.stringify({ action: "delete", entryId: entryId })
             });
             const result = await response.text();
-            
             if(result === "Deleted") {
-                alert("Entry deleted successfully!");
+                alert("Deleted!");
                 submittedEntries = {};
                 loadExistingEntries();
             } else {
@@ -447,31 +922,22 @@ Timber</pre>
     }
 
     async function submitData() {
-        const confirmSave = confirm("Do you want to save Data?\n\nYou can edit/delete entries until the end of this half-month period.");
+        const confirmSave = confirm("Save data?");
         if(!confirmSave) return;
 
         const btn = document.getElementById('submit-btn');
         btn.innerText = "Saving..."; 
         btn.disabled = true;
 
-        const packet = {
-            action: "add",
-            data: []
-        };
-        
+        const packet = { action: "add", data: [] };
         let hasValidData = false;
         
         document.querySelectorAll('.val-in:not([readonly])').forEach(i => {
             const amount = parseFloat(i.value) || 0;
-            if(amount > 0) {
-                // Skip if this is an existing entry being edited
-                if(i.dataset.id) return;
-                
+            if(amount > 0 && !i.dataset.id) {
                 hasValidData = true;
-                
                 const period = document.getElementById('entry-period-label').value;
                 const half = parseInt(document.getElementById('entry-period-label').dataset.h);
-                
                 packet.data.push({
                     office: document.getElementById('entry-office').value,
                     period: period,
@@ -486,19 +952,15 @@ Timber</pre>
         });
 
         if(!hasValidData) {
-            alert("No new valid data to save. (Only new entries with amount > 0 are saved)");
+            alert("No data to save");
             btn.disabled = false;
-            btn.innerText = "Finalize & Upload";
+            btn.innerText = "Upload";
             return;
         }
 
         try {
-            const response = await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                body: JSON.stringify(packet)
-            });
+            const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(packet) });
             const result = await response.text();
-            
             if(result === "Success") {
                 document.getElementById('form-container').style.opacity = "0.3";
                 document.getElementById('form-container').style.pointerEvents = "none";
@@ -509,12 +971,12 @@ Timber</pre>
             } else {
                 alert("Error: " + result);
                 btn.disabled = false;
-                btn.innerText = "Finalize & Upload";
+                btn.innerText = "Upload";
             }
         } catch(e) { 
             alert("Save failed: " + e.message); 
             btn.disabled = false;
-            btn.innerText = "Finalize & Upload";
+            btn.innerText = "Upload";
         }
     }
 
@@ -524,13 +986,13 @@ Timber</pre>
         const office = document.getElementById('rep-office-sel').value;
         const fy = document.getElementById('rep-fy').value;
         
-        table.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:50px;'>Calculating for FY "+fy+"...</td></tr>";
+        table.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:20px;'>Loading...</td></tr>";
 
         try {
             const resp = await fetch(SCRIPT_URL);
             const raw = await resp.json();
             
-            let html = `<thead><tr><th rowspan="2">Head of Account</th><th rowspan="2">Revenue Previous (1)</th><th colspan="2">Collection Month</th><th rowspan="2">Total (2)</th><th rowspan="2">Grand Total</th></tr><tr><th>1st-15th</th><th>16th-End</th></tr></thead><tbody>`;
+            let html = `<thead><tr><th rowspan="2">Head</th><th rowspan="2">Previous</th><th colspan="2">Month</th><th rowspan="2">Total</th><th rowspan="2">Grand</th></tr><tr><th>1-15</th><th>16-End</th></tr></thead><tbody>`;
 
             const startYear = parseInt(fy.split("-")[0]);
             const structure = parseItems();
@@ -541,7 +1003,6 @@ Timber</pre>
                 let hPrev = 0, hH1 = 0, hH2 = 0, hMonth = 0, hTotal = 0;
                 let headRowAdded = false;
 
-                // Process all components under this head
                 structure[head].forEach((component) => {
                     let p = 0, h1 = 0, h2 = 0;
                     
@@ -560,15 +1021,10 @@ Timber</pre>
                         const isCorrectComponent = (rComponent === component);
                         
                         if (isCorrectFY && isCorrectOffice && isCorrectHead && isCorrectComponent) {
-                            if (rMonth < selMonth) {
-                                p += rAmount;
-                            } 
+                            if (rMonth < selMonth) p += rAmount;
                             else if (rMonth === selMonth) {
-                                if (rHalf === 1) {
-                                    h1 += rAmount;
-                                } else {
-                                    h2 += rAmount;
-                                }
+                                if (rHalf === 1) h1 += rAmount;
+                                else h2 += rAmount;
                             }
                         }
                     });
@@ -576,45 +1032,31 @@ Timber</pre>
                     let mTotal = h1 + h2;
                     let rTotal = p + mTotal;
                     
-                    // Add Head row only once at the beginning (on first component)
                     if (!headRowAdded) {
                         html += `<tr class="head-row"><td><strong>${head}</strong></td><td colspan="5"></td></tr>`;
                         headRowAdded = true;
                     }
                     
-                    // Add component row (showing all components, even with 0 values)
                     html += `<tr class="component-row"><td>${component}</td><td class="num">${p.toFixed(2)}</td><td class="num">${h1.toFixed(2)}</td><td class="num">${h2.toFixed(2)}</td><td class="num">${mTotal.toFixed(2)}</td><td class="num">${rTotal.toFixed(2)}</td></tr>`;
                     
-                    hPrev += p; 
-                    hH1 += h1; 
-                    hH2 += h2; 
-                    hMonth += mTotal; 
-                    hTotal += rTotal;
+                    hPrev += p; hH1 += h1; hH2 += h2; hMonth += mTotal; hTotal += rTotal;
                 });
 
-                // Add Sub Total row for this head (always show, even if 0)
                 if(headRowAdded) {
-                    html += `<tr class="subtotal-row"><td><strong>Sub Total - ${head}</strong></td><td class="num"><strong>${hPrev.toFixed(2)}</strong></td><td class="num"><strong>${hH1.toFixed(2)}</strong></td><td class="num"><strong>${hH2.toFixed(2)}</strong></td><td class="num"><strong>${hMonth.toFixed(2)}</strong></td><td class="num"><strong>${hTotal.toFixed(2)}</strong></td></tr>`;
-                    
-                    gPrev += hPrev; 
-                    gH1 += hH1; 
-                    gH2 += hH2; 
-                    gMonth += hMonth; 
-                    gTotal += hTotal;
+                    html += `<tr class="subtotal-row"><td><strong>Sub - ${head}</strong></td><td class="num"><strong>${hPrev.toFixed(2)}</strong></td><td class="num"><strong>${hH1.toFixed(2)}</strong></td><td class="num"><strong>${hH2.toFixed(2)}</strong></td><td class="num"><strong>${hMonth.toFixed(2)}</strong></td><td class="num"><strong>${hTotal.toFixed(2)}</strong></td></tr>`;
+                    gPrev += hPrev; gH1 += hH1; gH2 += hH2; gMonth += hMonth; gTotal += hTotal;
                 }
             });
             
-            // Add Grand Total row
-            html += `<tr class="grand-total-row"><td><strong>GRAND TOTAL</strong></td><td class="num"><strong>${gPrev.toFixed(2)}</strong></td><td class="num"><strong>${gH1.toFixed(2)}</strong></td><td class="num"><strong>${gH2.toFixed(2)}</strong></td><td class="num"><strong>${gMonth.toFixed(2)}</strong></td><td class="num"><strong>${gTotal.toFixed(2)}</strong></td></tr>`;
+            html += `<tr class="grand-total-row"><td><strong>GRAND</strong></td><td class="num"><strong>${gPrev.toFixed(2)}</strong></td><td class="num"><strong>${gH1.toFixed(2)}</strong></td><td class="num"><strong>${gH2.toFixed(2)}</strong></td><td class="num"><strong>${gMonth.toFixed(2)}</strong></td><td class="num"><strong>${gTotal.toFixed(2)}</strong></td></tr>`;
             
             table.innerHTML = html + "</tbody>";
             
             const monthNames = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"];
             document.getElementById('report-division-name').innerText = divisionName;
-            document.getElementById('report-period-text').innerText = 
-                `Month: ${monthNames[selMonth]} (FY ${fy})`;
+            document.getElementById('report-period-text').innerText = `${monthNames[selMonth]} (FY ${fy})`;
         } catch(e) { 
-            table.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Error: " + e.message + "</td></tr>"; 
+            table.innerHTML = "<tr><td colspan='6' style='color:red;'>Error: " + e.message + "</td></tr>"; 
         }
     }
 
