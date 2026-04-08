@@ -741,10 +741,25 @@
         }
     }
 
-    function initApp(u) {
-        if(localStorage.getItem('sys_offices')) offices = JSON.parse(localStorage.getItem('sys_offices'));
-        if(localStorage.getItem('sys_items')) items = JSON.parse(localStorage.getItem('sys_items'));
-        if(localStorage.getItem('sys_division')) divisionName = localStorage.getItem('sys_division');
+function initApp(u) {
+    // Force load from localStorage - clear default values first
+    const savedOffices = localStorage.getItem('sys_offices');
+    const savedItems = localStorage.getItem('sys_items');
+    const savedDivision = localStorage.getItem('sys_division');
+    
+    if(savedOffices) {
+        offices = JSON.parse(savedOffices);
+    }
+    if(savedItems) {
+        items = JSON.parse(savedItems);
+    }
+    if(savedDivision) {
+        divisionName = savedDivision;
+    }
+    
+    console.log("Loaded Offices:", offices);
+    console.log("Loaded Items:", items);
+    console.log("Loaded Division:", divisionName);
         
         document.getElementById('division-display').innerText = divisionName;
         
