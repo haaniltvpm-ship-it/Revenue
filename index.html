@@ -697,25 +697,34 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaMYHQKkor6hWkw8-IDSrIN_VBr9RNiDNGn1uXZTBZcWei7lS9DzUkJOuB_NIbIw13/exec"; 
-    let items = ["#0406-01-101-94","Compounding fee-Kottoor","Ground Rent","#0406-01-800-95","Camera Fee"];
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7oxBN6kGI7QxEWc2otaxpZYtrjukt4yuOJPF2tpWEDcdHej7TuIdRAfX3192xCbRE/exec"; 
+    let items = ["0406-01-101-94","Compounding fee-Kottoor","Ground Rent","0406-01-800-95","Camera Fee"];
     let offices = ["KOTTOOR", "NEYYAR", "PEPPARA","DIVISION"];
     let divisionName = "Wildlife Division, Thiruvananthapuram";
     let userRole = "";
     let currentPeriod = {};
     let submittedEntries = {};
 
+    /**
+     * Parse items array into hierarchical structure
+     * Items array format: ["0406-01-101-94", "Compounding fee-Kottoor", "Ground Rent", "0406-01-800-95", ...]
+     * Head codes contain numbers with hyphens: 0406-01-101-94
+     * Components are descriptive text without the head code pattern
+     */
     function parseItems() {
         let structure = {};
         let currentHead = null;
+        
         items.forEach(item => {
-            if(item.startsWith('#')) {
-                currentHead = item.substring(1);
+            // Check if item is a head code (numeric pattern with hyphens)
+            if(/^\d{4}-\d{2}-\d{3}-/.test(item)) {
+                currentHead = item;
                 structure[currentHead] = [];
             } else if(currentHead) {
                 structure[currentHead].push(item);
             }
         });
+        
         return structure;
     }
 
@@ -741,25 +750,41 @@
         }
     }
 
-function initApp(u) {
-    // Force load from localStorage - clear default values first
-    const savedOffices = localStorage.getItem('sys_offices');
-    const savedItems = localStorage.getItem('sys_items');
-    const savedDivision = localStorage.getItem('sys_division');
-    
-    if(savedOffices) {
-        offices = JSON.parse(savedOffices);
+    /**
+     * Fetch configuration from server and initialize app
+     */
+    async function fetchConfigFromServer() {
+        try {
+            const resp = await fetch(SCRIPT_URL);
+            const fullData = await resp.json();
+            
+            if(fullData.config) {
+                const config = fullData.config;
+                divisionName = config.division || divisionName;
+                items = config.heads && config.heads.length > 0 ? config.heads : items;
+                offices = config.offices && config.offices.length > 0 ? config.offices : offices;
+                
+                console.log("✓ Config loaded from server");
+                console.log("  Division:", divisionName);
+                console.log("  Offices:", offices.length);
+                console.log("  Heads/Components:", items.length);
+            }
+        } catch(e) {
+            console.log("⚠ Using default/localStorage config:", e.message);
+            // Fallback to localStorage if available
+            const savedOffices = localStorage.getItem('sys_offices');
+            const savedItems = localStorage.getItem('sys_items');
+            const savedDivision = localStorage.getItem('sys_division');
+            
+            if(savedOffices) offices = JSON.parse(savedOffices);
+            if(savedItems) items = JSON.parse(savedItems);
+            if(savedDivision) divisionName = savedDivision;
+        }
     }
-    if(savedItems) {
-        items = JSON.parse(savedItems);
-    }
-    if(savedDivision) {
-        divisionName = savedDivision;
-    }
-    
-    console.log("Loaded Offices:", offices);
-    console.log("Loaded Items:", items);
-    console.log("Loaded Division:", divisionName);
+
+    async function initApp(u) {
+        // Fetch latest config from server
+        await fetchConfigFromServer();
         
         document.getElementById('division-display').innerText = divisionName;
         
